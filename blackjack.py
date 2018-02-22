@@ -13,18 +13,36 @@ class Table:
 class Dealer:
 
     # code
+    def __init__(self):
+        self.cards = []
 
 class Player:
 
     # code
+    def __init__(self):
+        self.cards = []
+        self.name = None
+
+    def show_cards(self):
+        for card in cards:
+            print(card)
+
+    def __str__(self):
+        # print Player object in formatted form
 
 class Deck:
 
     # code
+    def __init__(self):
+        self.cards = {}
 
 class Card:
 
     # code
+    def __init__(self):
+        suit = None
+        number = None
+        faceUp = False
 
 class Game:
 
