@@ -3,7 +3,7 @@
 # A Table has a Deck and state of Cards
 # A Player has Cards and set of actions
 # A Dealer has Cards and set of actions
-# Unique Dealer object?
+# A Deck has Cards or is Empty
 
 
 class Table:
