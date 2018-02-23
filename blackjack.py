@@ -34,14 +34,14 @@ class Deck:
 
     # code
     def __init__(self):
-        self.cards = {}
+        self.cards = []
 
 class Card:
 
     # code
     def __init__(self):
         suit = None
-        number = None
+        value = None
         faceUp = False
 
 class Game:
