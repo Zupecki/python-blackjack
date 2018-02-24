@@ -10,18 +10,19 @@ class Table:
 
     # code
 
-class Dealer:
-
-    # code
     def __init__(self):
+        self.players = []
         self.cards = []
+        self.score = 0
 
 class Player:
 
-    # code
+    # can be either Player's real name, or default "Player 1"/"Dealer" which are automatically assigned
+
     def __init__(self):
         self.cards = []
         self.name = None
+        self.currentValue = 0
 
     def show_cards(self):
         for card in cards:
@@ -38,11 +39,11 @@ class Deck:
 
 class Card:
 
-    # code
+    # all cards have suit (clubs, spades, diamonds, hearts) and a value (number, or special class)
+
     def __init__(self):
         suit = None
         value = None
-        faceUp = False
 
 class Game:
 
