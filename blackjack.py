@@ -48,6 +48,20 @@ class Card:
 class Game:
 
     # code
+    def __init__(self):
+        self.players = []
+        self.deck = None
+        self.table = None
+
+    def start_game():
+        # code
+
+    def check_win():
+        # code
+
+    def end_game():
+        # code
+
 
 # Game logic
 
