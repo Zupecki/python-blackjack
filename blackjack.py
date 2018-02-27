@@ -61,7 +61,9 @@ class Game:
 
     def end_game():
         # code
-
+    
+    def reset_game():
+        # code
 
 # Game logic
 
