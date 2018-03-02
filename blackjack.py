@@ -24,9 +24,12 @@ class Player:
         self.name = None
         self.currentValue = 0
 
-    def show_cards(self):
+    def show_hand(self):
         for card in cards:
             print(card)
+
+    def ccount_hand(self):
+        # code
 
     def __str__(self):
         # print Player object in formatted form
@@ -36,6 +39,12 @@ class Deck:
     # code
     def __init__(self):
         self.cards = []
+
+    def build_deck(self):
+        # code
+
+    def shuffle_deck(self):
+        # code
 
 class Card:
 
