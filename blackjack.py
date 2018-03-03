@@ -4,20 +4,11 @@
 # A Player has Cards and set of actions
 # A Dealer has Cards and set of actions
 # A Deck has Cards or is Empty
-
-
-class Table:
-
-    # code
-
-    def __init__(self):
-        self.players = []
-        self.cards = []
-        self.score = 0
+from random import shuffle
 
 class Player:
 
-    # can be either Player's real name, or default "Player 1"/"Dealer" which are automatically assigned
+    # name can be either Player's real name, or default "Player 1"/"Dealer" which are automatically assigned
 
     def __init__(self):
         self.cards = []
@@ -28,7 +19,7 @@ class Player:
         for card in cards:
             print(card)
 
-    def ccount_hand(self):
+    def count_hand(self):
         # code
 
     def __str__(self):
@@ -55,23 +46,21 @@ class Card:
         value = None
 
 class Game:
-
-    # code
     def __init__(self):
         self.players = []
         self.deck = None
-        self.table = None
+        self.won = False
 
-    def start_game():
+    def start_game(self):
         # code
 
-    def check_win():
+    def check_win(self):
         # code
 
-    def end_game():
+    def end_game(self):
         # code
     
-    def reset_game():
+    def reset_game(self):
         # code
 
 # Game logic
