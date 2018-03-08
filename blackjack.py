@@ -31,13 +31,17 @@ class Hand:
 
     # iterate through all cards and sum hand value
     def calculate_value(self):
-        for card in cards['fixedCards']:
-            value += card.value
-        for card in cards['aces']:
-            value += card.value
+
+        for key in self.cards:
+            for card in self.cards[key]:
+                value += card.value
+
+        # if resulting hand value over 21, and there is at least one ace
+        if self.value > 21 and len(self.cards['aces']) > 0:
+            change_aces()
 
     # called if hand exceeds 21 and holding aces. Change aces to 1 until hand less than 21
-    def ace_value(self):
+    def change_aces(self):
         for card in cards['aces']:
             if card.value == 11:
                 card.value = 1
@@ -89,5 +93,13 @@ class Game:
         # code
 
 # Game logic
+
+# Player enters name
+# Cards created
+# Cards shuffled
+# Cards dealt
+# Continue to calculate hand for every Card dealt
+# If either exceeds 21, other Player wins
+# If either Player or Dealer hit 21, they win. Dealer wins if both are 21
 
 ##
