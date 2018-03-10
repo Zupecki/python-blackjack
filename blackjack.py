@@ -72,8 +72,8 @@ class Card:
 
 class Game:
     def __init__(self):
-        self.players = []
-        self.deck = None
+        self.players = [Player(), Player()]
+        self.deck = Deck()
         self.won = False
 
     def deal_player(self):
@@ -81,7 +81,10 @@ class Game:
         # if card is Ace, check Hand value
 
     def start_game(self):
-        # code
+        # get Player(s) name(s)
+        # create Deck
+        # create Cards
+        # shuffle Cards
 
     def check_win(self):
         # code
@@ -93,6 +96,10 @@ class Game:
         # code
 
 # Game logic
+
+game = Game()
+
+game.start_game()
 
 # Player enters name
 # Cards created
