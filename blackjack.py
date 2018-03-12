@@ -10,15 +10,14 @@ class Player():
 
   def __init__(self):
       self.name = None
-      self.currentValue = 0
       self.hand = None
 
   def show_hand(self):
       for card in hand:
           print(card)
 
-  def count_hand(self):
-      print(None)
+  def hand_value(self):
+    self.hand
 
 class Hand():
   def __init__(self):
@@ -43,6 +42,12 @@ class Hand():
               calculate_value()
           if value <= 21:
               break
+
+  # cycle through cards in deck, call their string output
+  def __str__(self):
+    for cardType in self.cards:
+      for card in cardType:
+        card.__str__()
             
 class Deck():
 
@@ -50,40 +55,50 @@ class Deck():
   def __init__(self):
     self.cards = []
     self.suits = ['Hearts', 'Clubs', 'Diamonds', 'Spades']
-    self.types = ['King', ' Queen', 'Jack', 'Ace']
+    self.kinds = ['King', 'Queen', 'Jack', 'Ace']
 
   def build(self):
     for suit in self.suits:
       # standard cards
-      for x in range(0,11):
-        self.cards.append(Card(suit,x))
+      kind = None
+      for value in range(2,11):
+        self.cards.append(Card(suit,value,kind))
 
       # special cards
-      for cardType in self.types:
+      for kind in self.kinds:
         value = 0
-        if cardType == 'Ace':
+        if kind == 'Ace':
           value = 11
         else:
           value = 10
-        self.cards.append(Card(cardType,value))
+        self.cards.append(Card(suit,value,kind))
 
     # can I use list comprehension?
-    # subclass of Card? Special card with extra attribute for Type?
     # cards = [self.suits for self.suits in range(0,11)]
-    for card in self.cards:
-      print(str(card.value) + " of " + card.suit)
 
   def shuffle(self):
     return None
       # code
 
+  # stringify Deck by calling each Card stringify
+  def __str__(self):
+    for card in self.cards:
+      card.__str__()
+
 class Card():
 
   # all cards have suit (clubs, spades, diamonds, hearts) and a value (number, or special class)
-
-  def __init__(self, suit, value):
+  def __init__(self, suit, value, kind):
     self.suit = suit
     self.value = value
+    self.kind = kind
+
+  # print cards in correct format
+  def __str__(self):
+    if(self.kind == None):
+      print("{} of {} - ({})".format(str(self.value), self.suit, self.value))
+    else:
+      print("{} of {} - ({})".format(self.kind, self.suit, self.value))
 
 class Game():
   def __init__(self):
@@ -120,6 +135,8 @@ class Game():
 deck = Deck()
 
 deck.build()
+
+deck.__str__()
 
 # Player enters name
 # Cards created
