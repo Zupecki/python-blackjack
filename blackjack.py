@@ -60,18 +60,16 @@ class Deck():
   def build(self):
     for suit in self.suits:
       # standard cards
-      kind = None
       for value in range(2,11):
-        self.cards.append(Card(suit,value,kind))
+        self.cards.append(Card(suit, value, None))
 
       # special cards
       for kind in self.kinds:
-        value = 0
         if kind == 'Ace':
           value = 11
         else:
           value = 10
-        self.cards.append(Card(suit,value,kind))
+        self.cards.append(Card(suit, value, kind))
 
     # can I use list comprehension?
     # cards = [self.suits for self.suits in range(0,11)]
