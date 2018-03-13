@@ -77,8 +77,7 @@ class Deck():
     # cards = [self.suits for self.suits in range(0,11)]
 
   def shuffle(self):
-    return None
-      # code
+    shuffle(self.cards)
 
   # stringify Deck by calling each Card stringify
   def __str__(self):
@@ -106,12 +105,12 @@ class Game():
     self.deck = Deck()
     self.won = False
 
-  def deal_player(self):
+  def deal(self):
     return None
     # deal card from Deck to Player's Hand
     # if card is Ace, check Hand value
 
-  def start_game(self):
+  def start(self):
     return None
     # get Player(s) name(s)
     # create Deck
@@ -122,21 +121,22 @@ class Game():
     return None
     # code
 
-  def end_game(self):
+  def end(self):
     return None
     # code
   
-  def reset_game(self):
+  def reset(self):
     return None
     # code
 
 # Game logic
 
+# Build and shuffle deck - to go inside Game object in game.start()
 deck = Deck()
-
 deck.build()
-
+deck.shuffle()
 deck.__str__()
+
 
 # Player enters name
 # Cards created
