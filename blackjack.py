@@ -73,6 +73,7 @@ class Deck():
           value = 10
         self.cards.append(Card(suit, value, kind))
 
+    # commit initial Deck length to keep track of card count
     self.count = len(self.cards)
 
     # can I use list comprehension?
@@ -81,6 +82,7 @@ class Deck():
   def shuffle(self):
     shuffle(self.cards)
 
+  # remove Card from Deck, return it
   def pop_card(self):
     card = self.cards.pop()
     self.count -= 1
