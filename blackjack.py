@@ -54,28 +54,37 @@ class Deck():
   # code
   def __init__(self):
     self.cards = []
-    self.suits = ['Hearts', 'Clubs', 'Diamonds', 'Spades']
-    self.kinds = ['King', 'Queen', 'Jack', 'Ace']
+    self.count = None
 
   def build(self):
-    for suit in self.suits:
+    suits = ['Hearts', 'Clubs', 'Diamonds', 'Spades']
+    kinds = ['King', 'Queen', 'Jack', 'Ace']
+
+    for suit in suits:
       # standard cards
       for value in range(2,11):
         self.cards.append(Card(suit, value, None))
 
       # special cards
-      for kind in self.kinds:
+      for kind in kinds:
         if kind == 'Ace':
           value = 11
         else:
           value = 10
         self.cards.append(Card(suit, value, kind))
 
+    self.count = len(self.cards)
+
     # can I use list comprehension?
     # cards = [self.suits for self.suits in range(0,11)]
 
   def shuffle(self):
     shuffle(self.cards)
+
+  def pop_card(self):
+    card = self.cards.pop()
+    self.count -= 1
+    return card
 
   # stringify Deck by calling each Card stringify
   def __str__(self):
@@ -136,12 +145,12 @@ game.deck.build()
 game.deck.shuffle()
 game.deck.__str__()
 
-print("\n\n{} cards in the deck.\n".format(len(game.deck.cards)))
+print("\n\n{} cards in the deck.\n".format(game.deck.count))
 
-card = game.deck.cards.pop()
+card = game.deck.pop_card()
 print("{} - popped from deck".format(card.__str__()))
 
-print("\n\n{} cards in the deck.\n".format(len(game.deck.cards)))
+print("\n\n{} cards in the deck.\n".format(game.deck.count))
 # Player enters name
 # Cards created
 # Cards shuffled
