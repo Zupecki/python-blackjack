@@ -90,7 +90,7 @@ class Card():
     self.value = value
     self.kind = kind
 
-  # print cards in correct format
+  # print card in correct format
   def __str__(self):
     if(self.kind == None):
       print("{} of {} - ({})".format(str(self.value), self.suit, self.value))
@@ -130,12 +130,18 @@ class Game():
 # Game logic
 
 # Build and shuffle deck - to go inside Game object in game.start()
-deck = Deck()
-deck.build()
-deck.shuffle()
-deck.__str__()
+game = Game()
 
+game.deck.build()
+game.deck.shuffle()
+game.deck.__str__()
 
+print("\n\n{} cards in the deck.\n".format(len(game.deck.cards)))
+
+card = game.deck.cards.pop()
+print("{} - popped from deck".format(card.__str__()))
+
+print("\n\n{} cards in the deck.\n".format(len(game.deck.cards)))
 # Player enters name
 # Cards created
 # Cards shuffled
