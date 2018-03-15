@@ -8,9 +8,9 @@ class Player():
 
   # name can be either Player's real name, or default "Player 1"/"Dealer" which are automatically assigned
 
-  def __init__(self):
-      self.name = None
-      self.hand = None
+  def __init__(self, name):
+      self.name = name
+      self.hand = Hand()
 
   def show_hand(self):
       for card in hand:
@@ -43,15 +43,14 @@ class Hand():
           if value <= 21:
               break
 
-  # cycle through cards in deck, call their string output
-  def __str__(self):
+  # cycle through cards in Hand, call their string output
+  def show_hand(self):
     for cardType in self.cards:
       for card in cardType:
-        card.__str__()
+        print(card)
             
 class Deck():
 
-  # code
   def __init__(self):
     self.cards = []
     self.count = None
@@ -89,9 +88,9 @@ class Deck():
     return card
 
   # stringify Deck by calling each Card stringify
-  def __str__(self):
+  def show_cards(self):
     for card in self.cards:
-      card.__str__()
+      print(card)
 
 class Card():
 
@@ -104,13 +103,13 @@ class Card():
   # print card in correct format
   def __str__(self):
     if(self.kind == None):
-      print("{} of {} - ({})".format(str(self.value), self.suit, self.value))
+      return "{} of {} - ({})".format(str(self.value), self.suit, self.value)
     else:
-      print("{} of {} - ({})".format(self.kind, self.suit, self.value))
+      return "{} of {} - ({})".format(self.kind, self.suit, self.value)
 
 class Game():
   def __init__(self):
-    self.players = [Player(), Player()]
+    self.players = ()
     self.deck = Deck()
     self.won = False
 
@@ -120,11 +119,13 @@ class Game():
     # if card is Ace, check Hand value
 
   def start(self):
-    return None
-    # get Player(s) name(s)
-    # create Deck
-    # create Cards
-    # shuffle Cards
+    # get Player's name
+    print("Welcome to Python Blackjack, also known colloquially as Twenty One!\nPlease enter your name:")
+    self.players = (Player("Dealer"), Player(input()))
+
+    # Deck
+    self.deck.build()
+    self.deck.shuffle()
 
   def check_win(self):
     return None
@@ -142,18 +143,22 @@ class Game():
 
 # Build and shuffle deck - to go inside Game object in game.start()
 game = Game()
+game.start()
 
-game.deck.build()
-game.deck.shuffle()
-game.deck.__str__()
+print("\n")
+game.deck.show_cards()
 
-print("\n\n{} cards in the deck.\n".format(game.deck.count))
+print("\n{} cards in the deck.\n".format(game.deck.count))
 
 card = game.deck.pop_card()
-print("{} - popped from deck".format(card.__str__()))
+print("{} - popped from deck".format(card))
 
-print("\n\n{} cards in the deck.\n".format(game.deck.count))
-# Player enters name
+print("\n{} cards in the deck.\n".format(game.deck.count))
+
+print("Player's name is {}".format(game.players[0].name))
+print("Player's name is {}".format(game.players[1].name))
+
+# Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
 # Cards shuffled
 # Cards dealt
