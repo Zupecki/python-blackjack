@@ -139,11 +139,6 @@ class Game():
     self.dealer = None
     self.won = False
 
-  def deal(self):
-    return None
-    # deal card from Deck to Player's Hand
-    # if card is Ace, check Hand value
-
   def start(self):
     return None
 
@@ -173,15 +168,6 @@ class Game():
     return None
     # code
 
-  # give card to Player, update Hand
-  def give_card(self, card, player):
-    if(card.title != "Ace"):
-      cardType = "fixedCards"
-    else:
-      cardType = "aces"
-
-    player.hand.cards[cardType].append(card)
-    player.hand.count += 1
 # Game logic
 
 # Build game object, then set it up with Players, Dealer and Deck
