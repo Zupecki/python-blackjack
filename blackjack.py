@@ -27,6 +27,9 @@ class Player():
   def hand_value(self):
     self.hand
 
+  def __str__(self):
+    return "Name: {}\nHand value: {}".format(self.name, self.hand.value)
+
 # Dealer subcalass of Player with special features
 class Dealer(Player):
 
@@ -42,8 +45,10 @@ class Dealer(Player):
     else:
       cardType = "aces"
 
+    # add card to players hand, update hand stats
     player.hand.cards[cardType].append(card)
     player.hand.count += 1
+    player.hand.recalculate_value()
     print("{} - popped from deck and given to {}".format(card, player.name))
 
   def shuffle_deck(self):
@@ -56,10 +61,11 @@ class Hand():
       self.count = 0
 
   # iterate through all cards and sum hand value
-  def calculate_value(self):
+  def recalculate_value(self):
+    self.value = 0
     for key in self.cards:
       for card in self.cards[key]:
-        value += card.value
+        self.value += card.value
 
       # if resulting hand value over 21, and there is at least one ace
       if self.value > 21 and len(self.cards['aces']) > 0:
@@ -139,14 +145,11 @@ class Game():
     self.dealer = None
     self.won = False
 
-  def start(self):
-    return None
-
   def setup(self):
     # get Player's name
-    print("Welcome to Python Blackjack, also known colloquially as Twenty One!\nPlease enter your name:")
-    name = input()
-    self.players = (Player(name),)
+    print("Welcome to Python Blackjack, also known colloquially as Twenty One!\nHow many players?")
+    num = int(input())
+    self.players = self.create_players(num)
 
     # Deck
     deck = Deck()
@@ -155,6 +158,18 @@ class Game():
 
     # create Dealer and give deck
     self.dealer = Dealer("Dealer", deck)
+
+  def create_players(self, num):
+    players = ()
+    for x in range(1,num+1):
+      print("What is Player {}'s name?".format(x))
+      name = input()
+      players = players + (Player(name),)
+
+    return players
+
+  def start(self):
+    return None
 
   def check_win(self):
     return None
@@ -185,6 +200,18 @@ game.dealer.deal_card(game.players[0])
 # card 2
 game.dealer.deal_card(game.players[0])
 
+# card 3
+game.dealer.deal_card(game.players[1])
+
+# card 4
+game.dealer.deal_card(game.players[1])
+
+# card 5
+game.dealer.deal_card(game.players[2])
+
+# card 6
+game.dealer.deal_card(game.players[2])
+
 # show hand
 print("\n{} holding {} cards in Hand:".format(game.players[0].name, str(game.players[0].hand.count)))
 game.players[0].show_hand()
@@ -192,8 +219,8 @@ game.players[0].show_hand()
 # report how many cards are in the deck
 print("\n{} cards in the deck.\n".format(game.dealer.deck.count))
 
-print("Player's name is {}".format(game.players[0].name))
-print("Player's name is {}".format(game.dealer.name))
+for player in game.players:
+  print(player)
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
