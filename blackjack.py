@@ -20,6 +20,7 @@ class Player():
       self.hand = Hand()
 
   def show_hand(self):
+    print("\n{} holding {} cards in Hand:".format(self.name, str(self.hand.count)))
     for key, value in self.hand.cards.items():
       for card in value:
         print(card)
@@ -33,12 +34,11 @@ class Player():
 # Dealer subcalass of Player with special features
 class Dealer(Player):
 
-  def __init__(self, name, deck):
+  def __init__(self, name):
     Player.__init__(self, name)
-    self.deck = deck
 
-  def deal_card(self, player):
-    card = self.deck.pop_card()
+  def deal_card(self, player, deck):
+    card = deck.pop_card()
 
     if(card.title != "Ace"):
       cardType = "fixedCards"
@@ -49,7 +49,7 @@ class Dealer(Player):
     player.hand.cards[cardType].append(card)
     player.hand.count += 1
     player.hand.recalculate_value()
-    print("{} - popped from deck and given to {}".format(card, player.name))
+    print("{} - removed from deck and dealt to {}".format(card, player.name))
 
   def shuffle_deck(self):
     return None
@@ -143,27 +143,29 @@ class Game():
   def __init__(self):
     self.players = ()
     self.dealer = None
+    self.deck = None
     self.won = False
 
   def setup(self):
-    # get Player's name
+    # welcome message and Player creation
     print("Welcome to Python Blackjack, also known colloquially as Twenty One!\nHow many players?")
     num = int(input())
     self.players = self.create_players(num)
 
     # Deck
-    deck = Deck()
-    deck.build()
-    deck.shuffle()
+    self.deck = Deck()
+    self.deck.build()
+    self.deck.shuffle()
 
     # create Dealer and give deck
-    self.dealer = Dealer("Dealer", deck)
+    self.dealer = Dealer("Dealer")
 
   def create_players(self, num):
     players = ()
     for x in range(1,num+1):
       print("What is Player {}'s name?".format(x))
       name = input()
+      # concatenate as new tuple to allow for incremental tuple to be returned with all players
       players = players + (Player(name),)
 
     return players
@@ -183,6 +185,14 @@ class Game():
     return None
     # code
 
+  def print_players(self):
+    for player in self.players:
+      print(player)
+
+  def show_players_hands(self):
+    for player in self.players:
+      player.show_hand()
+
 # Game logic
 
 # Build game object, then set it up with Players, Dealer and Deck
@@ -191,36 +201,22 @@ game.setup()
 
 print("\n")
 # show Deck for testing
-game.dealer.deck.show_cards()
-print("\n{} cards in the deck.\n".format(game.dealer.deck.count))
+game.deck.show_cards()
+print("\n{} cards in the deck.\n".format(game.deck.count))
 
-# card 1
-game.dealer.deal_card(game.players[0])
-
-# card 2
-game.dealer.deal_card(game.players[0])
-
-# card 3
-game.dealer.deal_card(game.players[1])
-
-# card 4
-game.dealer.deal_card(game.players[1])
-
-# card 5
-game.dealer.deal_card(game.players[2])
-
-# card 6
-game.dealer.deal_card(game.players[2])
+# deal 2 cards to each player
+for x in range(0,2):
+  for player in game.players:
+    game.dealer.deal_card(player, game.deck)
 
 # show hand
-print("\n{} holding {} cards in Hand:".format(game.players[0].name, str(game.players[0].hand.count)))
-game.players[0].show_hand()
+game.show_players_hands()
 
 # report how many cards are in the deck
-print("\n{} cards in the deck.\n".format(game.dealer.deck.count))
+print("\n{} cards in the deck.\n".format(game.deck.count))
 
-for player in game.players:
-  print(player)
+# print players
+game.print_players()
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
