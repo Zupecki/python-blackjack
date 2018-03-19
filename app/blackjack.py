@@ -25,6 +25,9 @@ class Player():
       for card in value:
         print(card)
 
+  def get_name(self):
+    return self.name
+
   def __str__(self):
     return "Name: {}\nHand value: {}".format(self.name, self.hand.value)
 
@@ -42,14 +45,10 @@ class Dealer(Player):
     else:
       cardType = "aces"
 
-    # add card to players hand, update hand stats
+    # add card to player's hand, update hand stats
     player.hand.cards[cardType].append(card)
-    player.hand.count += 1
-    player.hand.recalculate_value()
+    player.hand.update_hand()
     print("{} - removed from deck and dealt to {}".format(card, player.name))
-
-  def shuffle_deck(self):
-    return None
 
 class Hand():
   def __init__(self):
@@ -68,14 +67,24 @@ class Hand():
       if self.value > 21 and len(self.cards['aces']) > 0:
         change_aces()
 
+    # value can never be below zero
+    self.value = -1
+    if self.value < 0:
+      raise ValueError('Hand value cannot be less than zero')
+
   # called if hand exceeds 21 and holding aces. Change aces to 1 until hand less than 21
   def change_aces(self):
     for card in cards['aces']:
       if card.value == 11:
         card.value = 1
-        calculate_value()
-      if value <= 21:
+        self.recalculate_value()
+      if self.value <= 21:
         break
+
+  # update hand
+  def update_hand(self):
+    self.count+=1
+    self.recalculate_value()
             
 class Deck():
 
@@ -193,27 +202,33 @@ class Game():
 # Game logic
 
 # Build game object, then set it up with Players, Dealer and Deck
-game = Game()
-game.setup()
 
-print("\n")
+#game = Game()
+#game.setup()
+#print("\n")
+
 # show Deck for testing
-game.deck.show_cards()
-print("\n{} cards in the deck.\n".format(game.deck.count))
+
+#game.deck.show_cards()
+#print("\n{} cards in the deck.\n".format(game.deck.count))
 
 # deal 2 cards to each player
-for x in range(0,2):
-  for player in game.players:
-    game.dealer.deal_card(player, game.deck)
+
+#for x in range(0,2):
+  #for player in game.players:
+    #game.dealer.deal_card(player, game.deck)
 
 # show hand
-game.show_players_hands()
+
+#game.show_players_hands()
 
 # report how many cards are in the deck
-print("\n{} cards in the deck.\n".format(game.deck.count))
+
+#print("\n{} cards in the deck.\n".format(game.deck.count))
 
 # print players
-game.print_players()
+
+#game.print_players()
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
