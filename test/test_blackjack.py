@@ -3,7 +3,7 @@ import unittest
 import sys
 sys.path.append('..')
 
-from app.blackjack import Player, Card, Game, Dealer, Hand
+from app.blackjack import Game, Player, Dealer, Hand, Card
 
 class TestBlackjackPlayer(unittest.TestCase):
 
@@ -20,20 +20,22 @@ class TestBlackjackHand(unittest.TestCase):
 
 	def setUp(self):
 		self.hand = Hand()
+		self.testCards = [Card("Diamonds", 11, "Ace"), Card("Clubs", 11, "Ace"),
+		Card("Spades", 11, "Ace"), Card("Hearts", 11, "Ace")]
 
 	def test_hand_value_is_num_type(self):
 		self.assertIsInstance(self.hand.value, (int, float, complex))
 
-	# not working?
-	def test_hand_returns_error_message_if_hand_less_than_zero(self):
-		self.assertRaises(ValueError, self.hand.update_hand())
-
 	def test_hand_count_is_num_type(self):
 		self.assertIsInstance(self.hand.value, (int, float, complex))
 
-	# does nothing - implement check to ensure correct error is thrown if below zero
-	def test_hand_count_is_positive_or_zero(self):
-		self.assertTrue(self.hand.value >= 0)
+	def test_change_aces_brings_hand_to_below_21_when_bust_with_aces(self):
+		# add 4 aces, hand value 44, cycle through and change three aces to value 1
+		# for hand value of 14
+		for card in self.testCards:
+			self.hand.insert_card(card)
+
+		self.assertEqual(14, self.hand.value)
 
 if __name__ == '__main__':
 	unittest.main()

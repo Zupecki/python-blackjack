@@ -18,6 +18,7 @@ class Player():
   def __init__(self, name):
       self.name = name
       self.hand = Hand()
+      self.bust = False
 
   def show_hand(self):
     print("\n{} holding {} cards in Hand:".format(self.name, str(self.hand.count)))
@@ -39,15 +40,7 @@ class Dealer(Player):
 
   def deal_card(self, player, deck):
     card = deck.pop_card()
-
-    if(card.title != "Ace"):
-      cardType = "fixedCards"
-    else:
-      cardType = "aces"
-
-    # add card to player's hand, update hand stats
-    player.hand.cards[cardType].append(card)
-    player.hand.update_hand()
+    player.hand.insert_card(card)
     print("{} - removed from deck and dealt to {}".format(card, player.name))
 
 class Hand():
@@ -59,27 +52,37 @@ class Hand():
   # iterate through all cards and sum hand value
   def recalculate_value(self):
     self.value = 0
+
+    # sum value of cards
     for key in self.cards:
       for card in self.cards[key]:
         self.value += card.value
 
-      # if resulting hand value over 21, and there is at least one ace
+      # if resulting hand value over 21, and there is at least one ace, else bust!
       if self.value > 21 and len(self.cards['aces']) > 0:
-        change_aces()
-
-    # value can never be below zero
-    self.value = -1
-    if self.value < 0:
-      raise ValueError('Hand value cannot be less than zero')
+        self.change_aces()
+      elif self.value > 21 and len(self.cards['aces'] == 0):
+        self.bust = True
+        break
 
   # called if hand exceeds 21 and holding aces. Change aces to 1 until hand less than 21
   def change_aces(self):
-    for card in cards['aces']:
+    for card in self.cards['aces']:
       if card.value == 11:
         card.value = 1
         self.recalculate_value()
       if self.value <= 21:
         break
+
+  def insert_card(self, card):
+    if(card.title != "Ace"):
+      cardType = "fixedCards"
+    else:
+      cardType = "aces"
+
+    # add card to player's hand, update hand stats
+    self.cards[cardType].append(card)
+    self.update_hand()
 
   # update hand
   def update_hand(self):
@@ -181,7 +184,8 @@ class Game():
 
   def check_win(self):
     return None
-    # code
+    # check for winner, report busted Player's
+    # ask remaining players to check or hit
 
   def end(self):
     return None
