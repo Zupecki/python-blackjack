@@ -97,7 +97,7 @@ class Deck():
 
   def build(self):
     suits = ['Hearts', 'Clubs', 'Diamonds', 'Spades']
-    kinds = ['King', 'Queen', 'Jack', 'Ace']
+    faces = ['King', 'Queen', 'Jack', 'Ace']
 
     for suit in suits:
       # standard cards
@@ -106,12 +106,12 @@ class Deck():
         self.cards.append(Card(suit, value, title))
 
       # special cards
-      for kind in kinds:
-        if kind == 'Ace':
+      for face in faces:
+        if face == 'Ace':
           value = 11
         else:
           value = 10
-        self.cards.append(Card(suit, value, kind))
+        self.cards.append(Card(suit, value, face))
 
     # commit initial Deck length to keep track of card count
     self.count = len(self.cards)
