@@ -41,7 +41,7 @@ class Dealer(Player):
   def deal_card(self, player, deck):
     card = deck.pop_card()
     player.hand.insert_card(card)
-    print("{} - removed from deck and dealt to {}".format(card, player.name))
+    # print("{} - removed from deck and dealt to {}".format(card, player.name))
 
 class Hand():
   def __init__(self):
@@ -55,10 +55,11 @@ class Hand():
 
     # sum value of cards
     for key in self.cards:
+      # sum value of all cards
       for card in self.cards[key]:
         self.value += card.value
 
-      # if resulting hand value over 21, and there is at least one ace, else bust!
+      # if hand value over 21, and there is at least one ace, else bust!
       if self.value > 21 and len(self.cards['aces']) > 0:
         self.change_aces()
       elif self.value > 21 and len(self.cards['aces'] == 0):
@@ -93,7 +94,7 @@ class Deck():
 
   def __init__(self):
     self.cards = []
-    self.count = None
+    self.count = 0
 
   def build(self):
     suits = ['Hearts', 'Clubs', 'Diamonds', 'Spades']
@@ -122,11 +123,14 @@ class Deck():
   def shuffle(self):
     shuffle(self.cards)
 
-  # remove Card from Deck, return it
+  # remove Card from Deck, if there are Cards, return it
   def pop_card(self):
-    card = self.cards.pop()
-    self.count -= 1
-    return card
+    if(self.count <= 0):
+      raise IndexError("Deck has no more cards")
+    else:
+      card = self.cards.pop()
+      self.count -= 1
+      return card
 
   # stringify Deck by calling each Card stringify
   def show_cards(self):

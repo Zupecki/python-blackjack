@@ -1,9 +1,11 @@
 import unittest
+import numpy as np
+import copy
 # edit system path to start at root to look for modules
 import sys
 sys.path.append('..')
 
-from app.blackjack import Game, Player, Dealer, Hand, Card
+from app.blackjack import Game, Player, Dealer, Hand, Card, Deck
 
 class TestBlackjackPlayer(unittest.TestCase):
 
@@ -52,6 +54,94 @@ class TestBlackjackHand(unittest.TestCase):
 			self.hand.insert_card(card)
 
 		self.assertEqual(12, self.hand.value)
+
+class TestBlackjackDealer(unittest.TestCase):
+
+	def setUp(self):
+		self.player = Player("Michael")
+		self.dealer = Dealer("Dealer")
+		self.deck = Deck()
+
+	def	test_dealer_deals_card_to_player_correctly(self):
+		self.deck.build()
+		self.deck.shuffle()
+		# copy last card in deck for comparison
+		lastCard = self.deck.cards[len(self.deck.cards)-1]
+
+		# deal last card to Player, from end of deck
+		self.dealer.deal_card(self.player, self.deck)
+
+		# get card type from Player, might have been ace
+		if(len(self.player.hand.cards['fixedCards']) > 0):
+			cardType = 'fixedCards'
+		else:
+			cardType = 'aces'
+
+		self.assertEqual(lastCard, self.player.hand.cards[cardType][0])
+
+class TestBlackjackCard(unittest.TestCase):
+
+	def setUp(self):
+		self.card = Card("Diamonds", 10, "King")
+
+	def test_card_has_correct_suit(self):
+		self.assertEqual("Diamonds", self.card.suit)
+
+	def test_card_has_correct_value(self):
+		self.assertEqual(10, self.card.value)
+
+	def test_card_has_correct_title(self):
+		self.assertEqual("King", self.card.title)
+
+	def test_card_value_is_num(self):
+		self.assertIsInstance(self.card.value, (int, float, complex))
+
+	def test_card_prints_in_correct_pretty_format(self):
+		compareString = "King of Diamonds - (10)"
+		cardString = self.card.__str__()
+		self.assertEqual(compareString, cardString)
+
+class TestBlackjackDeck(unittest.TestCase):
+
+	def setUp(self):
+		self.deck = Deck()
+		self.deck.build()
+
+	def test_deck_counter_keeps_track_of_card_count(self):
+		# check initial count
+		self.assertEqual(52, self.deck.count)
+
+		# remove 2 cards and check new count
+		for x in range(0,2):
+			card = self.deck.pop_card()
+		self.assertEqual(50, self.deck.count)
+
+		# remove 12 cards and check new count
+		for x in range(0, 12):
+			card = self.deck.pop_card()
+		self.assertEqual(38, self.deck.count)
+
+	def test_deck_builder_builds_appropriate_cards(self):
+		# too cumbersome
+		return True
+
+	def test_deck_shuffle(self):
+		# copy (deep copy so not reference) unshuffled deck for comparison
+		compareDeck = copy.deepcopy(self.deck)
+		# shuffle primary deck
+		self.deck.shuffle()
+
+		# deprecated way of checking equivalence using numpy - leaving for reference
+		# sameOrder = np.array_equiv(compareDeck.cards, self.deck.cards)
+		
+		self.assertNotEqual(compareDeck.cards, self.deck.cards)
+
+	def test_deck_raises_error_when_empty(self):
+		# build and empty deck
+		for x in range(0, 52):
+			card = self.deck.pop_card()
+
+		self.assertRaises(IndexError, self.deck.pop_card)
 
 if __name__ == '__main__':
 	unittest.main()
