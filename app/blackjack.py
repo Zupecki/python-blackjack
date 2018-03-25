@@ -62,7 +62,8 @@ class Hand():
       # if hand value over 21, and there is at least one ace, else bust!
       if self.value > 21 and len(self.cards['aces']) > 0:
         self.change_aces()
-      elif self.value > 21 and len(self.cards['aces'] == 0):
+      elif self.value > 21 and len(self.cards['aces']) == 0:
+        # need to acces Player object
         self.bust = True
         break
 
@@ -154,27 +155,40 @@ class Card():
 
 class Game():
   def __init__(self):
-    self.players = ()
+    self.players = None
     self.dealer = None
     self.deck = None
     self.won = False
 
   def setup(self):
     # welcome message and Player creation
-    print("Welcome to Python Blackjack, also known colloquially as Twenty One!\nHow many players?")
-    num = int(input())
-    self.players = self.create_players(num)
+    print("Welcome to Python Blackjack, also known colloquially as Twenty One!")
+
+    # Players
+    self.players = self.create_players()
 
     # Deck
-    self.deck = Deck()
-    self.deck.build()
-    self.deck.shuffle()
+    self.deck = self.create_deck()
 
-    # create Dealer and give deck
+    # Dealer
     self.dealer = Dealer("Dealer")
 
-  def create_players(self, num):
+  def create_players(self):
     players = ()
+
+    print("How many players?")
+
+    # validate that input is a number by casting to int and capturing exception
+    while True:
+      try:
+        num = int(input())
+      except ValueError:
+        print("Must be a number, try again.\nHow many players?")
+        continue
+      else:
+        break
+
+    # cycle through and create Player's with names
     for x in range(1,num+1):
       print("What is Player {}'s name?".format(x))
       name = input()
@@ -182,6 +196,13 @@ class Game():
       players = players + (Player(name),)
 
     return players
+
+  def create_deck(self):
+    deck = Deck()
+    deck.build()
+    deck.shuffle()
+
+    return deck
 
   def start(self):
     return None
@@ -202,41 +223,51 @@ class Game():
   def print_players(self):
     for player in self.players:
       print(player)
+    print(self.dealer)
 
   def show_players_hands(self):
     for player in self.players:
       player.show_hand()
+    self.dealer.show_hand()
 
 # Game logic
 
 # Build game object, then set it up with Players, Dealer and Deck
 
-#game = Game()
-#game.setup()
+game = Game()
+game.setup()
 #print("\n")
 
 # show Deck for testing
 
-#game.deck.show_cards()
-#print("\n{} cards in the deck.\n".format(game.deck.count))
+game.deck.show_cards()
+print("\n{} cards in the deck.\n".format(game.deck.count))
 
 # deal 2 cards to each player
 
-#for x in range(0,2):
-  #for player in game.players:
-    #game.dealer.deal_card(player, game.deck)
+for x in range(0,3):
+  for player in game.players:
+    game.dealer.deal_card(player, game.deck)
+  game.dealer.deal_card(game.dealer, game.deck)
 
 # show hand
 
-#game.show_players_hands()
+game.show_players_hands()
 
 # report how many cards are in the deck
 
-#print("\n{} cards in the deck.\n".format(game.deck.count))
+print("\n{} cards in the deck.\n".format(game.deck.count))
 
 # print players
 
-#game.print_players()
+game.print_players()
+
+# print busted players - NOT WORKING!
+
+for player in game.players:
+  #if(player.bust == True):
+    #print("{} is busted!".format(player.name))
+  print("{} busted is {}".format(player.name, player.bust))
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
