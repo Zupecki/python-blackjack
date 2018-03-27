@@ -26,6 +26,18 @@ class Player():
       for card in value:
         print(card)
 
+  def insert_card(self, card):
+    if(card.title != "Ace"):
+      cardType = "fixedCards"
+    else:
+      cardType = "aces"
+
+    # add card to player's hand, update hand stats, assign bust or not
+    self.hand.cards[cardType].append(card)
+
+    # update bust with returned dictionary value
+    self.bust = self.hand.update_hand()['bust']
+
   def get_name(self):
     return self.name
 
@@ -40,7 +52,7 @@ class Dealer(Player):
 
   def deal_card(self, player, deck):
     card = deck.pop_card()
-    player.hand.insert_card(card)
+    player.insert_card(card)
     # print("{} - removed from deck and dealt to {}".format(card, player.name))
 
 class Hand():
@@ -62,34 +74,28 @@ class Hand():
       # if hand value over 21, and there is at least one ace, else bust!
       if self.value > 21 and len(self.cards['aces']) > 0:
         self.change_aces()
-      elif self.value > 21 and len(self.cards['aces']) == 0:
-        # need to acces Player object
-        self.bust = True
-        break
 
   # called if hand exceeds 21 and holding aces. Change aces to 1 until hand less than 21
   def change_aces(self):
     for card in self.cards['aces']:
       if card.value == 11:
+        # if ace still 11, reduce to 1 and subtract difference from hand value
         card.value = 1
-        self.recalculate_value()
+        self.value -= 10
+        # if hand now acceptable, stop iterating
       if self.value <= 21:
         break
-
-  def insert_card(self, card):
-    if(card.title != "Ace"):
-      cardType = "fixedCards"
-    else:
-      cardType = "aces"
-
-    # add card to player's hand, update hand stats
-    self.cards[cardType].append(card)
-    self.update_hand()
 
   # update hand
   def update_hand(self):
     self.count+=1
     self.recalculate_value()
+
+    # check for bust after hand adjusted and aces checked
+    if self.value > 21:
+      return {'bust':True}
+    else:
+      return {'bust':False}
             
 class Deck():
 
