@@ -5,7 +5,7 @@ import copy
 import sys
 sys.path.append('..')
 
-from app.blackjack import Game, Player, Dealer, Hand, Card, Deck
+from src.classes import Game, Player, Dealer, Hand, Card, Deck
 
 class TestBlackjackPlayer(unittest.TestCase):
 
