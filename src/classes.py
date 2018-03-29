@@ -19,6 +19,7 @@ class Player():
       self.name = name
       self.hand = Hand()
       self.bust = False
+      self.blackjack = False
 
   def show_hand(self):
     print("\n{} holding {} cards in Hand:".format(self.name, str(self.hand.count)))
@@ -34,9 +35,16 @@ class Player():
 
     # add card to player's hand, update hand stats, assign bust or not
     self.hand.cards[cardType].append(card)
+    self.check_hand()
 
-    # update bust with returned dictionary value
-    self.bust = self.hand.update_hand()['bust']
+  def check_hand(self):
+    # update hand
+    state = self.hand.update_hand()
+
+    if(state == 'blackjack'):
+      self.blackjack = True
+    elif(state == 'bust'):
+      self.bust = True
 
   def get_name(self):
     return self.name
@@ -90,14 +98,16 @@ class Hand():
   def update_hand(self):
     self.count+=1
     self.recalculate_value()
-    return self.check_bust()
+    return self.check_hand()
     
-  # check if hand is bust
-  def check_bust(self):
-    if self.value > 21:
-      return {'bust':True}
+  # check if hand is bust or blackjack (loss/win)
+  def check_hand(self):
+    if(self.value == 21):
+      return 'blackjack'
+    elif self.value > 21:
+      return 'bust'
     else:
-      return {'bust':False}
+      return None
             
 class Deck():
 
