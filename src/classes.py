@@ -35,11 +35,13 @@ class Player():
 
     # add card to player's hand, update hand stats, assign bust or not
     self.hand.cards[cardType].append(card)
-    self.check_hand()
+    self.update_hand()
 
-  def check_hand(self):
+  def update_hand(self):
     # update hand
-    state = self.hand.update_hand()
+    self.hand.count += 1
+    self.hand.recalculate_value()
+    state = self.hand.check_hand()
 
     if(state == 'blackjack'):
       self.blackjack = True
@@ -93,12 +95,6 @@ class Hand():
         # if hand now acceptable, stop iterating
       if self.value <= 21:
         break
-
-  # update hand
-  def update_hand(self):
-    self.count+=1
-    self.recalculate_value()
-    return self.check_hand()
     
   # check if hand is bust or blackjack (loss/win)
   def check_hand(self):
