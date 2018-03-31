@@ -3,6 +3,7 @@
 # A Player has Cards and set of actions
 # A Deck has Cards or is Empty
 import sys
+import random
 sys.path.append('..')
 
 import src.classes as blackjack
@@ -20,12 +21,14 @@ game.setup()
 game.deck.show_cards()
 print("\n{} cards in the deck.\n".format(game.deck.count))
 
-# deal 2 cards to each player
+# deal 2 cards to each player, including dealer
 
-for x in range(0,3):
-  for player in game.players:
-    game.dealer.deal_card(player, game.deck)
-  game.dealer.deal_card(game.dealer, game.deck)
+game.initial_deal()
+
+# dealer needs a facedown card
+#for key, value in game.dealer.hand.cards.items():
+#  for card in value:
+
 
 # show hand
 
@@ -42,9 +45,8 @@ game.print_players()
 # print busted players - NOT WORKING!
 
 for player in game.players:
-  #if(player.bust == True):
-    #print("{} is busted!".format(player.name))
   print("{} busted is {}".format(player.name, player.bust))
+  print("{} blackjack is {}".format(player.name, player.blackjack))
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created

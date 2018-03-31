@@ -20,6 +20,7 @@ class Player():
       self.hand = Hand()
       self.bust = False
       self.blackjack = False
+      self.cash = 0
 
   def show_hand(self):
     print("\n{} holding {} cards in Hand:".format(self.name, str(self.hand.count)))
@@ -52,7 +53,7 @@ class Player():
     return self.name
 
   def __str__(self):
-    return "Name: {}\nHand value: {}\n".format(self.name, self.hand.value)
+    return "Name: {}\nHand value: {}\nCash: {}\n".format(self.name, self.hand.value, self.cash)
 
 # Dealer subcalass of Player with special features
 class Dealer(Player):
@@ -60,8 +61,9 @@ class Dealer(Player):
   def __init__(self, name):
     Player.__init__(self, name)
 
-  def deal_card(self, player, deck):
+  def deal_card(self, player, deck, faceDown):
     card = deck.pop_card()
+    card.faceDown = faceDown
     player.insert_card(card)
     # print("{} - removed from deck and dealt to {}".format(card, player.name))
 
@@ -159,6 +161,7 @@ class Card():
     self.suit = suit
     self.value = value
     self.title = title
+    self.faceDown = False
     # adding attributes for potential art to be added
     self.art = None
     self.pos = [None, None]
@@ -173,6 +176,8 @@ class Game():
     self.dealer = None
     self.deck = None
     self.won = False
+    self.buyIn = 0
+    self.multi = False
 
   def setup(self):
     # welcome message and Player creation
@@ -187,20 +192,59 @@ class Game():
     # Dealer
     self.dealer = Dealer("Dealer")
 
-  def create_players(self):
-    players = ()
+    # Buy in
+    self.buyIn = self.assign_cash()
 
-    print("How many players?")
+  def initial_deal(self):
+    for x in range(0,2):
+      faceDown = False
+      for player in self.players:
+        self.dealer.deal_card(player, self.deck, faceDown)
+      if(x == 1):
+        faceDown = True
+      self.dealer.deal_card(self.dealer, self.deck, faceDown)
 
-    # validate that input is a number by casting to int and capturing exception
+    #for key, value in self.dealer.hand.cards.items():
+    #  for card in value:
+
+  def assign_cash(self):
+    print("What is the buy in? (Cash each Player starts with)")
+
     while True:
       try:
-        num = int(input())
+        cash = int(input())
       except ValueError:
-        print("Must be a number, try again.\nHow many players?")
+        print("Must be a number, try again.\nHow much cash does each Player have?")
         continue
       else:
         break
+
+    for player in self.players:
+      player.cash = cash
+
+    self.dealer.cash = cash
+
+    return cash
+
+  def create_players(self):
+    players = ()
+    num = 0
+
+    # multiplayer if game.multi = True
+    if(self.multi != False):
+      print("How many players?")
+
+      # validate that input is a number by casting to int and capturing exception
+      while True:
+        try:
+          num = int(input())
+        except ValueError:
+          print("Must be a number, try again.\nHow many players?")
+          continue
+        else:
+          break
+    else:
+      num = 1
 
     # cycle through and create Player's with names
     for x in range(1,num+1):
