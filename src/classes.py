@@ -15,12 +15,14 @@ def num_to_word(num):
 
 class Player():
 
-  def __init__(self, name):
-      self.name = name
-      self.hand = Hand()
-      self.bust = False
-      self.blackjack = False
-      self.cash = 0
+  def __init__(self, name, num):
+    self.num = num
+    self.name = name
+    self.hand = Hand()
+    self.states = {'Bust': False, 'Blackjack': False, 'Double': False}
+    self.cash = 0
+    self.bet = 0
+    self.turns = 0
 
   def show_hand(self):
     print("\n{} holding {} cards in Hand:".format(self.name, str(self.hand.count)))
@@ -45,25 +47,24 @@ class Player():
     state = self.hand.check_hand()
 
     if(state == 'blackjack'):
-      self.blackjack = True
+      self.states['Blackjack'] = True
     elif(state == 'bust'):
-      self.bust = True
+      self.states['Bust'] = True
 
   def get_name(self):
     return self.name
 
   def __str__(self):
-    return "Name: {}\nHand value: {}\nCash: {}\n".format(self.name, self.hand.value, self.cash)
+    return "PLAYER {}\nName: {}\nHand value: {}\nCash: {}\nBet: {}\n".format(self.num, self.name, self.hand.value, self.cash, self.bet)
 
 # Dealer subcalass of Player with special features
 class Dealer(Player):
 
-  def __init__(self, name):
-    Player.__init__(self, name)
+  def __init__(self, name, num):
+    Player.__init__(self, name, num)
 
-  def deal_card(self, player, deck, faceDown):
+  def deal_card(self, player, deck):
     card = deck.pop_card()
-    card.faceDown = faceDown
     player.insert_card(card)
     # print("{} - removed from deck and dealt to {}".format(card, player.name))
 
@@ -161,7 +162,6 @@ class Card():
     self.suit = suit
     self.value = value
     self.title = title
-    self.faceDown = False
     # adding attributes for potential art to be added
     self.art = None
     self.pos = [None, None]
@@ -175,13 +175,15 @@ class Game():
     self.players = None
     self.dealer = None
     self.deck = None
-    self.won = False
+    self.play = True
     self.buyIn = 0
     self.multi = False
+    self.bets = {}
+    self.options = {'Stand': None, 'Hit': None, 'Double': None, "Split": None, "Surrender": None}
 
   def setup(self):
     # welcome message and Player creation
-    print("Welcome to Python Blackjack, also known colloquially as Twenty One!")
+    print("Welcome to Python Blackjack, also known as Twenty One!")
 
     # Players
     self.players = self.create_players()
@@ -190,22 +192,20 @@ class Game():
     self.deck = self.create_deck()
 
     # Dealer
-    self.dealer = Dealer("Dealer")
+    self.dealer = Dealer("Dealer", 0)
 
     # Buy in
-    self.buyIn = self.assign_cash()
+    self.assign_cash()
+
+    # Bet tracker
+    self.bet_tracker_setup()
 
   def initial_deal(self):
     for x in range(0,2):
-      faceDown = False
       for player in self.players:
-        self.dealer.deal_card(player, self.deck, faceDown)
-      if(x == 1):
-        faceDown = True
-      self.dealer.deal_card(self.dealer, self.deck, faceDown)
-
-    #for key, value in self.dealer.hand.cards.items():
-    #  for card in value:
+        self.dealer.deal_card(player, self.deck)
+      # deal Dealer, too
+      self.dealer.deal_card(self.dealer, self.deck)
 
   def assign_cash(self):
     print("What is the buy in? (Cash each Player starts with)")
@@ -223,8 +223,7 @@ class Game():
       player.cash = cash
 
     self.dealer.cash = cash
-
-    return cash
+    self.buyIn = cash
 
   def create_players(self):
     players = ()
@@ -251,9 +250,14 @@ class Game():
       print("What is Player {}'s name?".format(x))
       name = input()
       # concatenate as new tuple to allow for incremental tuple to be returned with all players
-      players = players + (Player(name),)
+      players = players + (Player(name, x),)
 
     return players
+
+  def bet_tracker_setup(self):
+    # bet tracker dictionary for all players {'Player x' : value}
+    for player in self.players:
+      self.bets['Player '+str(player.num)] = 0
 
   def create_deck(self):
     deck = Deck()
@@ -261,6 +265,22 @@ class Game():
     deck.shuffle()
 
     return deck
+
+  def stand(self, player):
+    print("{} stands with his/her cards.".format(player.name))
+
+  def hit(self, player):
+    self.dealer.deal_card(player, self.deck)
+
+  def double(self, player):
+    # if Player has enough cash to double bet, double bet and set state double to True
+    if(player.bet*2 <= player.cash):
+      player.cash -= player.bet
+      player.bet *= 2
+      player.states['Double'] = True
+      return True
+    else:
+      return False
 
   def start(self):
     return None
@@ -282,6 +302,11 @@ class Game():
     for player in self.players:
       print(player)
     print(self.dealer)
+
+  def print_bet_tracker(self):
+    print("BET TRACKER:")
+    for key, value in self.bets.items():
+      print("{}: ${}\n".format(key, value))
 
   def show_players_hands(self):
     for player in self.players:

@@ -25,11 +25,6 @@ print("\n{} cards in the deck.\n".format(game.deck.count))
 
 game.initial_deal()
 
-# dealer needs a facedown card
-#for key, value in game.dealer.hand.cards.items():
-#  for card in value:
-
-
 # show hand
 
 game.show_players_hands()
@@ -42,11 +37,15 @@ print("\n{} cards in the deck.\n".format(game.deck.count))
 
 game.print_players()
 
-# print busted players - NOT WORKING!
+# print bet tracker
+
+game.print_bet_tracker()
+
+# print player state
 
 for player in game.players:
-  print("{} busted is {}".format(player.name, player.bust))
-  print("{} blackjack is {}".format(player.name, player.blackjack))
+  print("{} busted is {}".format(player.name, player.states['Bust']))
+  print("{} blackjack is {}".format(player.name, player.states['Blackjack']))
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
