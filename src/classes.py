@@ -18,44 +18,56 @@ class Player():
   def __init__(self, name, num):
     self.num = num
     self.name = name
-    self.hand = Hand()
+    self.hands = (Hand(), )
     self.states = {'Bust': False, 'Blackjack': False, 'Double': False}
     self.cash = 0
     self.bet = 0
     self.turns = 0
 
   def show_hand(self):
-    print("\n{} holding {} cards in Hand:".format(self.name, str(self.hand.count)))
-    for key, value in self.hand.cards.items():
-      for card in value:
-        print(card)
+    count = 1
+    print("\n{} holding -".format(self.name))
+    for hand in self.hands:
+      print("{} cards in Hand {}:".format(str(hand.count), count))
+      for key, value in hand.cards.items():
+        for card in value:
+          print(card)
+      count += 1
 
-  def insert_card(self, card):
+  def insert_card(self, card, handNum):
     if(card.title != "Ace"):
       cardType = "fixedCards"
     else:
       cardType = "aces"
 
     # add card to player's hand, update hand stats, assign bust or not
-    self.hand.cards[cardType].append(card)
-    self.update_hand()
+    self.hands[handNum].cards[cardType].append(card)
+    self.update_hands()
 
-  def update_hand(self):
+  def update_hands(self):
     # update hand
-    self.hand.count += 1
-    self.hand.recalculate_value()
-    state = self.hand.check_hand()
+    for hand in self.hands:
+      hand.count += 1
+      hand.recalculate_value()
+      state = hand.check_hand()
 
-    if(state == 'blackjack'):
-      self.states['Blackjack'] = True
-    elif(state == 'bust'):
-      self.states['Bust'] = True
+      if(state == 'blackjack'):
+        self.states['Blackjack'] = True
+      elif(state == 'bust'):
+        self.states['Bust'] = True
 
   def get_name(self):
     return self.name
 
   def __str__(self):
-    return "PLAYER {}\nName: {}\nHand value: {}\nCash: {}\nBet: {}\n".format(self.num, self.name, self.hand.value, self.cash, self.bet)
+    playerString = ""
+    playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands))
+    count = 1
+
+    for hand in self.hands:
+      playerString += "Hand {} value: {}\n".format(count, hand.value)
+      count += 1
+    return playerString
 
 # Dealer subcalass of Player with special features
 class Dealer(Player):
@@ -63,9 +75,9 @@ class Dealer(Player):
   def __init__(self, name, num):
     Player.__init__(self, name, num)
 
-  def deal_card(self, player, deck):
+  def deal_card(self, player, deck, handNum):
     card = deck.pop_card()
-    player.insert_card(card)
+    player.insert_card(card, handNum)
     # print("{} - removed from deck and dealt to {}".format(card, player.name))
 
 class Hand():
@@ -163,7 +175,8 @@ class Card():
     self.value = value
     self.title = title
     # adding attributes for potential art to be added
-    self.art = None
+    # art for Front,Back, pos for x,y
+    self.art = [None, None]
     self.pos = [None, None]
 
   # print card in correct format
@@ -201,11 +214,12 @@ class Game():
     self.bet_tracker_setup()
 
   def initial_deal(self):
+    # deal two cards into Hand 1, all Players start with 1 Hand (0)
     for x in range(0,2):
       for player in self.players:
-        self.dealer.deal_card(player, self.deck)
+        self.dealer.deal_card(player, self.deck, 0)
       # deal Dealer, too
-      self.dealer.deal_card(self.dealer, self.deck)
+      self.dealer.deal_card(self.dealer, self.deck, 0)
 
   def assign_cash(self):
     print("What is the buy in? (Cash each Player starts with)")
@@ -230,7 +244,7 @@ class Game():
     num = 0
 
     # multiplayer if game.multi = True
-    if(self.multi != False):
+    if(self.multi == True):
       print("How many players?")
 
       # validate that input is a number by casting to int and capturing exception
@@ -250,7 +264,7 @@ class Game():
       print("What is Player {}'s name?".format(x))
       name = input()
       # concatenate as new tuple to allow for incremental tuple to be returned with all players
-      players = players + (Player(name, x),)
+      players += (Player(name, x),)
 
     return players
 
@@ -269,18 +283,27 @@ class Game():
   def stand(self, player):
     print("{} stands with his/her cards.".format(player.name))
 
-  def hit(self, player):
-    self.dealer.deal_card(player, self.deck)
+  def hit(self, player, handNum):
+    self.dealer.deal_card(player, self.deck, handNum)
 
   def double(self, player):
     # if Player has enough cash to double bet, double bet and set state double to True
-    if(player.bet*2 <= player.cash):
+    if(player.bet <= player.cash):
       player.cash -= player.bet
       player.bet *= 2
       player.states['Double'] = True
+      this.bets['Player {}'.format(player.num)] += player.bet
+
+      # deal cards
+      
       return True
     else:
       return False
+
+  def split(self, player):
+    # add Hand to player
+    # deal multiple cards - one to each hand
+    return None
 
   def start(self):
     return None
