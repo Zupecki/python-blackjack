@@ -280,14 +280,17 @@ class Game():
 
     return deck
 
+# Player passes and holds Hand as is
   def stand(self, player):
     print("{} stands with his/her cards.".format(player.name))
 
+# Player requests extra card
   def hit(self, player, handNum):
     self.dealer.deal_card(player, self.deck, handNum)
 
+# if Player has enough cash to double bet, double bet and
+# set state double to True
   def double(self, player):
-    # if Player has enough cash to double bet, double bet and set state double to True
     if(player.bet <= player.cash):
       player.cash -= player.bet
       player.bet *= 2
@@ -295,14 +298,17 @@ class Game():
       this.bets['Player {}'.format(player.num)] += player.bet
 
       # deal cards
-      
+
       return True
     else:
       return False
 
+  # if Player has double cards, allow split to add new hand
+  # and deal extra card to each Hand
   def split(self, player):
-    # add Hand to player
+    player.hands += (Hand())
     # deal multiple cards - one to each hand
+    # change update_hands back to update_hand anc accept handNum
     return None
 
   def start(self):
