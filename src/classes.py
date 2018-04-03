@@ -41,7 +41,7 @@ class Player():
     else:
       cardType = "aces"
 
-    # add card to player's hand, update hand stats, assign bust or not
+    # add card to Player's hand, update hand stats, assign bust or not
     self.hands[handNum].cards[cardType].append(card)
     self.update_hands()
 
