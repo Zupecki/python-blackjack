@@ -32,6 +32,7 @@ class Player():
       for key, value in hand.cards.items():
         for card in value:
           print(card)
+      print("\n")
       count += 1
 
   def insert_card(self, card, handNum):
@@ -47,7 +48,6 @@ class Player():
   def update_hands(self):
     # update hand
     for hand in self.hands:
-      hand.count += 1
       hand.recalculate_value()
       state = hand.check_hand()
 
@@ -100,6 +100,8 @@ class Hand():
       # if hand value over 21, and there is at least one ace, else bust!
       if self.value > 21 and len(self.cards['aces']) > 0:
         self.change_aces()
+
+    self.count = len(self.cards['fixedCards']) + len(self.cards['aces'])
 
   # called if hand exceeds 21 and holding aces. Change aces to 1 until hand less than 21
   def change_aces(self):

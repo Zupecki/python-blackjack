@@ -37,6 +37,17 @@ print("\n{} cards in the deck.\n".format(game.deck.count))
 
 game.print_players()
 
+# split player 1's hand
+game.split(game.players[0])
+
+# show hands again
+
+game.show_players_hands()
+
+# print players again
+
+game.print_players()
+
 # print bet tracker
 
 game.print_bet_tracker()
