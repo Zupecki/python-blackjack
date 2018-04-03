@@ -85,6 +85,7 @@ class Hand():
       self.cards = {'fixedCards':[], 'aces': []}
       self.value = 0
       self.count = 0
+      self.num = 0
 
   # iterate through all cards and sum hand value
   def recalculate_value(self):
@@ -303,10 +304,37 @@ class Game():
     else:
       return False
 
-  # if Player has double cards, allow split to add new hand
-  # and deal extra card to each Hand
+  # if Player has double cards, pass in Hand with doubles
+  # allow split to add new hand and deal extra card to
+  # each Hand
   def split(self, player):
-    player.hands += (Hand())
+    extraHand = Hand()
+
+    # check for which hand has double cards, take handNum
+    handNum = 0
+    cardType = ""
+
+    # I don't like the code duplication here
+    for hand in player.hands:
+      if(len(hand.cards['fixedCards']) == 2):
+        cardType = 'fixedCards'
+        handNum = hand.num
+      elif(len(hand.cards['aces']) == 2):
+        cardType = 'aces'
+        handNum = hand.num
+
+    # pop card off appropriate array in Hand
+    card = player.hands[handNum].cards[cardType].pop()
+
+    if(card.title == 'Ace'):
+      extraHand.cards['aces'].append(card)
+    else:
+      extraHand.cards['fixedCards'].append(card)
+
+    player.hands += (extraHand, )
+
+    self.dealer.deal_card(player, self.deck, handNum)
+    self.dealer.deal_card(player, self.deck, handNum+1)
     # deal multiple cards - one to each hand
     # change update_hands back to update_hand anc accept handNum
     return None
