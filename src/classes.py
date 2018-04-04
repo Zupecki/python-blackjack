@@ -35,27 +35,6 @@ class Player():
       print("\n")
       count += 1
 
-  def insert_card(self, card, handNum):
-    if(card.title != "Ace"):
-      cardType = "fixedCards"
-    else:
-      cardType = "aces"
-
-    # add card to Player's hand, update hand stats, assign bust or not
-    self.hands[handNum].cards[cardType].append(card)
-    self.update_hands()
-
-  def update_hands(self):
-    # update hand
-    for hand in self.hands:
-      hand.recalculate_value()
-      state = hand.check_hand()
-
-      if(state == 'blackjack'):
-        self.states['Blackjack'] = True
-      elif(state == 'bust'):
-        self.states['Bust'] = True
-
   def get_name(self):
     return self.name
 
@@ -75,9 +54,19 @@ class Dealer(Player):
   def __init__(self, name, num):
     Player.__init__(self, name, num)
 
-  def deal_card(self, player, deck, handNum):
+  def deal_card(self, hand, deck):
     card = deck.pop_card()
-    player.insert_card(card, handNum)
+
+    if(card.title != "Ace"):
+      cardType = "fixedCards"
+    else:
+      cardType = "aces"
+
+    # add card to Hand, update hand stats, assign bust or not
+    hand.cards[cardType].append(card)
+    hand.recalculate_value()
+    hand.check_hand()
+
     # print("{} - removed from deck and dealt to {}".format(card, player.name))
 
 class Hand():
@@ -85,7 +74,8 @@ class Hand():
       self.cards = {'fixedCards':[], 'aces': []}
       self.value = 0
       self.count = 0
-      self.num = 0
+      self.state = ""
+      self.playable = True
 
   # iterate through all cards and sum hand value
   def recalculate_value(self):
@@ -114,14 +104,16 @@ class Hand():
       if self.value <= 21:
         break
     
-  # check if hand is bust or blackjack (loss/win)
+  # check if hand is bust or blackjack (loss/win), don't like code dupe
   def check_hand(self):
     if(self.value == 21):
-      return 'blackjack'
+      self.state = 'Blackjack'
+      self.playable = False
     elif self.value > 21:
-      return 'bust'
+      self.state = 'Bust'
+      self.playable = False
     else:
-      return None
+      self.state = 'Active'
             
 class Deck():
 
@@ -193,7 +185,7 @@ class Game():
     self.deck = None
     self.play = True
     self.buyIn = 0
-    self.multi = False
+    self.multi = True
     self.bets = {}
     self.options = {'Stand': None, 'Hit': None, 'Double': None, "Split": None, "Surrender": None}
 
@@ -220,9 +212,11 @@ class Game():
     # deal two cards into Hand 1, all Players start with 1 Hand (0)
     for x in range(0,2):
       for player in self.players:
-        self.dealer.deal_card(player, self.deck, 0)
+        for hand in player.hands:
+          self.dealer.deal_card(hand, self.deck)
       # deal Dealer, too
-      self.dealer.deal_card(self.dealer, self.deck, 0)
+      for hand in self.dealer.hands:
+        self.dealer.deal_card(hand, self.deck)
 
   def assign_cash(self):
     print("What is the buy in? (Cash each Player starts with)")
@@ -288,8 +282,8 @@ class Game():
     print("{} stands with his/her cards.".format(player.name))
 
 # Player requests extra card
-  def hit(self, player, handNum):
-    self.dealer.deal_card(player, self.deck, handNum)
+  def hit(self, hand):
+    self.dealer.deal_card(hand, self.deck)
 
 # if Player has enough cash to double bet, double bet and
 # set state double to True
@@ -308,37 +302,28 @@ class Game():
 
   # if Player has double cards, pass in Hand with doubles
   # allow split to add new hand and deal extra card to
-  # each Hand
-  def split(self, player):
-    extraHand = Hand()
-
-    # check for which hand has double cards, take handNum
-    handNum = 0
-    cardType = ""
-
-    # I don't like the code duplication here
-    for hand in player.hands:
-      if(len(hand.cards['fixedCards']) == 2):
-        cardType = 'fixedCards'
-        handNum = hand.num
-      elif(len(hand.cards['aces']) == 2):
-        cardType = 'aces'
-        handNum = hand.num
+  # each Hand. handInfo is {num: x, cardType: x}
+  def split(self, player, hand):
+    newHand = Hand()
+    
+    if(len(hand.cards['fixedCards']) == 2):
+      cardType = 'fixedCards'
+    else:
+      cardType = 'aces'
 
     # pop card off appropriate array in Hand
-    card = player.hands[handNum].cards[cardType].pop()
+    card = hand.cards[cardType].pop()
 
-    if(card.title == 'Ace'):
-      extraHand.cards['aces'].append(card)
-    else:
-      extraHand.cards['fixedCards'].append(card)
+    # put card into new Hand
+    newHand.cards[cardType].append(card)
 
-    player.hands += (extraHand, )
+    # deal a new card to each Hand
+    self.dealer.deal_card(hand, self.deck)
+    self.dealer.deal_card(newHand, self.deck)
+   
+    # add Hand to player's hands
+    player.hands += (newHand, )
 
-    self.dealer.deal_card(player, self.deck, handNum)
-    self.dealer.deal_card(player, self.deck, handNum+1)
-    # deal multiple cards - one to each hand
-    # change update_hands back to update_hand anc accept handNum
     return None
 
   def start(self):

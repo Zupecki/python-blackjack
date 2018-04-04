@@ -38,7 +38,8 @@ print("\n{} cards in the deck.\n".format(game.deck.count))
 game.print_players()
 
 # split player 1's hand
-game.split(game.players[0])
+game.split(game.players[0], game.players[0].hands[0])
+game.split(game.players[1], game.players[1].hands[0])
 
 # show hands again
 
@@ -52,11 +53,13 @@ game.print_players()
 
 game.print_bet_tracker()
 
-# print player state
-
+# print player hand states
 for player in game.players:
-  print("{} busted is {}".format(player.name, player.states['Bust']))
-  print("{} blackjack is {}".format(player.name, player.states['Blackjack']))
+	count = 1
+	print("{}'s Hand states are:\n".format(player.name))
+	for hand in player.hands:
+	  print("Hand {}: {}".format(count, hand.state))
+	  count += 1
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
