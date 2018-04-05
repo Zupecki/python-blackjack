@@ -288,14 +288,15 @@ class Game():
 
 # if Player has enough cash to double bet, double bet and
 # set state double to True
-  def double(self, player):
+  def double(self, player, hand):
     if(player.bet <= player.cash):
       player.cash -= player.bet
       player.bet *= 2
       player.states['Double'] = True
       this.bets['Player {}'.format(player.num)] += player.bet
 
-      # deal cards
+      # deal card
+      self.dealer.deal_card(hand, self.deck)
 
       return True
     else:
