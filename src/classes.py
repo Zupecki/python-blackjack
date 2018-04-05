@@ -20,6 +20,7 @@ class Player():
     self.name = name
     self.hands = (Hand(), )
     self.states = {'Bust': False, 'Blackjack': False, 'Double': False}
+    self.playing = True
     self.cash = 0
     self.bet = 0
     self.turns = 0
@@ -325,6 +326,12 @@ class Game():
     player.hands += (newHand, )
 
     return None
+
+  # forfeit half of bet and drop out, only possible on first two cards
+  def surrender(self, player):
+    player.bet /= 2
+    player.cash += player.bet
+    player.playing = False
 
   def start(self):
     return None
