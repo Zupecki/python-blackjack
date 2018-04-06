@@ -14,44 +14,20 @@ import src.classes as blackjack
 
 game = blackjack.Game()
 game.setup()
-#print("\n")
-
-# show Deck for testing
-
-game.deck.show_cards()
-print("\n{} cards in the deck.\n".format(game.deck.count))
 
 # deal 2 cards to each player, including dealer
 
 game.initial_deal()
 
-# show hand
+# Game loop
+while game.play != False:
+	for player in game.players:
+		for hand in player.hands:
+			print("Player {} ({}) - what would you like to do with Hand {}?".format(player.num, player.name, hand.num))
+			game.generate_options(hand)
+			game.print_options()
+			game.select_option(input())
 
-game.show_players_hands()
-
-# report how many cards are in the deck
-
-print("\n{} cards in the deck.\n".format(game.deck.count))
-
-# print players
-
-game.print_players()
-
-# split player 1's hand
-game.split(game.players[0], game.players[0].hands[0])
-game.split(game.players[1], game.players[1].hands[0])
-
-# show hands again
-
-game.show_players_hands()
-
-# print players again
-
-game.print_players()
-
-# print bet tracker
-
-game.print_bet_tracker()
 
 # print player hand states
 for player in game.players:

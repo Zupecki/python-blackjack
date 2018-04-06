@@ -76,6 +76,7 @@ class Hand():
       self.value = 0
       self.count = 0
       self.state = ""
+      self.num = 1
       self.playable = True
 
   # iterate through all cards and sum hand value
@@ -179,6 +180,16 @@ class Card():
   def __str__(self):
     return "{} of {} - ({})".format(self.title, self.suit, self.value)
 
+class Option():
+
+  def __init__(self, num, name, method):
+    self.num = num
+    self.name = name
+    self.method = method
+
+  def __str__(self):
+    return "{}. {}".format(self.num, self.name)
+
 class Game():
   def __init__(self):
     self.players = None
@@ -188,7 +199,7 @@ class Game():
     self.buyIn = 0
     self.multi = True
     self.bets = {}
-    self.options = {'Stand': None, 'Hit': None, 'Double': None, "Split": None, "Surrender": None}
+    self.options = []
 
   def setup(self):
     # welcome message and Player creation
@@ -208,6 +219,28 @@ class Game():
 
     # Bet tracker
     self.bet_tracker_setup()
+
+  def generate_options(self, hand):
+    stand = Option(1, "Stand", self.stand)
+    hit = Option(2, "Hit", self.hit)
+    double = Option(3, "Double", self.double)
+    split = Option(4, "Split", self.split)
+    surrender = Option(5, "Surrender", self.surrender)
+
+    # check for same value cards for split option to be added or removed
+    #for cardType in hand.cards:
+    #  for card in cardType:
+    #    pass
+
+    # update options
+    self.options = [stand, hit, double, split, surrender]
+
+  def select_option(self, num):
+    print("HERE")
+    for option in self.options:
+      print("HERE2")
+      if(option.num == num):
+        print("{} selected".format(option.name))
 
   def initial_deal(self):
     # deal two cards into Hand 1, all Players start with 1 Hand (0)
@@ -308,6 +341,10 @@ class Game():
   def split(self, player, hand):
     newHand = Hand()
     
+    # assign Hand number
+    newHand.num = len(player.hands + 1)
+
+    # check for card type
     if(len(hand.cards['fixedCards']) == 2):
       cardType = 'fixedCards'
     else:
@@ -333,6 +370,14 @@ class Game():
     player.bet /= 2
     player.cash += player.bet
     player.playing = False
+    print("{} surrenders and takes back half their wager of {}".format(player.name, player.bet))
+
+  def print_options(self):
+    for option in self.options:
+      print(option)
+
+  def select_option(self, num):
+    return None
 
   def start(self):
     return None
