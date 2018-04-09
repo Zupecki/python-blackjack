@@ -24,9 +24,19 @@ while game.play != False:
 	for player in game.players:
 		for hand in player.hands:
 			print("Player {} ({}) - what would you like to do with Hand {}?".format(player.num, player.name, hand.num))
+			player.show_hand(hand)
 			game.generate_options(hand)
 			game.print_options()
-			game.select_option(input())
+
+			choice = input()
+			option = game.menu_select(choice) # return correct option method
+
+			option(player) # sometimes requires player and hand, need solution
+
+			game.play = False
+
+			# should a hand keep track of options for itself?
+			# should options be persistent and then dynamically pulled for each hand?
 
 
 # print player hand states

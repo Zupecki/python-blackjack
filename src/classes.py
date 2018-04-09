@@ -25,16 +25,11 @@ class Player():
     self.bet = 0
     self.turns = 0
 
-  def show_hand(self):
-    count = 1
-    print("\n{} holding -".format(self.name))
-    for hand in self.hands:
-      print("{} cards in Hand {}:".format(str(hand.count), count))
-      for key, value in hand.cards.items():
-        for card in value:
-          print(card)
-      print("\n")
-      count += 1
+  def show_hand(self, hand):
+
+    for key, value in hand.cards.items():
+      for card in value:
+        print(card)
 
   def get_name(self):
     return self.name
@@ -42,11 +37,9 @@ class Player():
   def __str__(self):
     playerString = ""
     playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands))
-    count = 1
 
     for hand in self.hands:
-      playerString += "Hand {} value: {}\n".format(count, hand.value)
-      count += 1
+      playerString += "Hand {} value: {}\n".format(hand.num, hand.value)
     return playerString
 
 # Dealer subcalass of Player with special features
@@ -232,10 +225,19 @@ class Game():
     #  for card in cardType:
     #    pass
 
+    # check if first two cards for double
+
     # update options
     self.options = [stand, hit, double, split, surrender]
 
-  def select_option(self, num):
+  def menu_select(self, num):
+    for option in self.options:
+      if(option.num == int(num)):
+        print("{} selected from options menu.".format(option.name))
+        return option.method
+        
+
+  def select_option(self):
     print("HERE")
     for option in self.options:
       print("HERE2")
