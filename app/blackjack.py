@@ -15,6 +15,9 @@ import src.classes as blackjack
 game = blackjack.Game()
 game.setup()
 
+# ADD BETTING ROUND HERE
+# game.collect_bets()
+
 # deal 2 cards to each player, including dealer
 
 game.initial_deal()
@@ -34,6 +37,7 @@ while game.play != False:
 			option(player) # sometimes requires player and hand, need solution
 
 			game.play = False
+
 
 			# should a hand keep track of options for itself?
 			# should options be persistent and then dynamically pulled for each hand?

@@ -13,6 +13,23 @@ def num_to_word(num):
 
   return ref[num]
 
+def num_input_validation(minimum, maximum, intentMessage, rangeMessage):
+
+  while True:
+      try:
+        num = int(input())
+      except ValueError:
+        print("Must be a number, try again.\n{}".format(intentMessage))
+        continue
+      else:
+        if(num >= minimum and num <= maximum):
+          break
+        else:
+          print("Sorry, {}.\n{}".format(rangeMessage, intentMessage))
+          continue
+
+  return num
+
 class Player():
 
   def __init__(self, name, num):
@@ -244,6 +261,11 @@ class Game():
       if(option.num == num):
         print("{} selected".format(option.name))
 
+  def place_bets(self):
+    for player in self.players:
+      print("Player {} ({}), what is your bet? (Your cash balance is: ${}".format(player.num, player.name, player.cash))
+      bet = input()
+
   def initial_deal(self):
     # deal two cards into Hand 1, all Players start with 1 Hand (0)
     for x in range(0,2):
@@ -255,16 +277,9 @@ class Game():
         self.dealer.deal_card(hand, self.deck)
 
   def assign_cash(self):
-    print("What is the buy in? (Cash each Player starts with)")
+    print("How much cash does each Player start with? ($100-$1000)")
 
-    while True:
-      try:
-        cash = int(input())
-      except ValueError:
-        print("Must be a number, try again.\nHow much cash does each Player have?")
-        continue
-      else:
-        break
+    cash = num_input_validation(100, 1000, "How much cash does each Player start with?", "cash can only be between $100 and $1000")
 
     for player in self.players:
       player.cash = cash
@@ -276,19 +291,12 @@ class Game():
     players = ()
     num = 0
 
-    # multiplayer if game.multi = True
+    # multiplayer if game.multi = True, else 1 Player
     if(self.multi == True):
       print("How many players?")
 
       # validate that input is a number by casting to int and capturing exception
-      while True:
-        try:
-          num = int(input())
-        except ValueError:
-          print("Must be a number, try again.\nHow many players?")
-          continue
-        else:
-          break
+      num = num_input_validation(1, 7, "How many Players?", "game can only be between 1 and 7 Players")
     else:
       num = 1
 
@@ -305,6 +313,9 @@ class Game():
     # bet tracker dictionary for all players {'Player x' : value}
     for player in self.players:
       self.bets['Player '+str(player.num)] = 0
+
+  def collect_bets(self):
+    return None
 
   def create_deck(self):
     deck = Deck()
