@@ -13,11 +13,11 @@ def num_to_word(num):
 
   return ref[num]
 
-def num_input_validation(minimum, maximum, intentMessage, rangeMessage):
+def num_range_input_validation(inputType, minimum, maximum, intentMessage, rangeMessage):
 
   while True:
       try:
-        num = int(input())
+        num = inputType(input())
       except ValueError:
         print("Must be a number, try again.\n{}".format(intentMessage))
         continue
@@ -279,7 +279,7 @@ class Game():
   def assign_cash(self):
     print("How much cash does each Player start with? ($100-$1000)")
 
-    cash = num_input_validation(100, 1000, "How much cash does each Player start with?", "cash can only be between $100 and $1000")
+    cash = num_range_input_validation(int, 100, 1000, "How much cash does each Player start with?", "cash can only be between $100 and $1000")
 
     for player in self.players:
       player.cash = cash
@@ -296,7 +296,7 @@ class Game():
       print("How many players?")
 
       # validate that input is a number by casting to int and capturing exception
-      num = num_input_validation(1, 7, "How many Players?", "game can only be between 1 and 7 Players")
+      num = num_range_input_validation(int, 1, 7, "How many Players?", "game can only be between 1 and 7 Players")
     else:
       num = 1
 
