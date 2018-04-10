@@ -25,6 +25,7 @@ game.initial_deal()
 # Game loop
 while game.play != False:
 	for player in game.players:
+		# print Player details here - name, cash, hand info?
 		for hand in player.hands:
 			print("Player {} ({}) - what would you like to do with Hand {}?".format(player.num, player.name, hand.num))
 			player.show_hand(hand)
@@ -38,7 +39,9 @@ while game.play != False:
 
 			game.play = False
 
-
+			# change Player state to be something like {'Playing': False, 'Context': 'Bust'}
+			# change Hand class to only have complete list of ALL cards, and one for Aces (duplicate instances), this will simplify some code
+			# should there be a player_turn function to take in each Player, cycle through Hands etc?
 			# should a hand keep track of options for itself?
 			# should options be persistent and then dynamically pulled for each hand?
 
