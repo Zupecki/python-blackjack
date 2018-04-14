@@ -25,19 +25,23 @@ game.initial_deal()
 # Game loop
 while game.play != False:
 	for player in game.players:
-		# print Player details here - name, cash, hand info?
-		for hand in player.hands:
-			print("Player {} ({}) - what would you like to do with Hand {}?".format(player.num, player.name, hand.num))
-			player.show_hand(hand)
-			game.generate_options(hand)
-			game.print_options()
+		if(player.state['Active'] == True):
+			# print Player details here - name, cash, hand info?
+			for hand in player.hands:
+				print("\nPlayer {} ({}) - what would you like to do with Hand {}?".format(player.num, player.name, hand.num))
+				player.show_hand(hand)
+				game.generate_options(hand)
+				game.print_options()
 
-			choice = input()
-			option = game.menu_select(choice) # return correct option method
+				choice = input()
+				option = game.menu_select(choice) # return correct option method
 
-			option(player) # sometimes requires player and hand, need solution
+				option(player) # sometimes requires player and hand, need solution
 
-			game.play = False
+				game.play = False
+
+		# after Player has acted on all Hands, check if still in the game
+		player.check_active()
 
 			# change Player state to be something like {'Playing': False, 'Context': 'Bust'}
 			# change Hand class to only have complete list of ALL cards, and one for Aces (duplicate instances), this will simplify some code

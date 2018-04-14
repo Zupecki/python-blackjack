@@ -36,8 +36,7 @@ class Player():
     self.num = num
     self.name = name
     self.hands = (Hand(), )
-    self.states = {'Bust': False, 'Blackjack': False, 'Double': False}
-    self.playing = True
+    self.state = {'Active': True, 'Context': 'Active'}
     self.cash = 0
     self.bet = 0
     self.turns = 0
@@ -48,8 +47,20 @@ class Player():
       for card in value:
         print(card)
 
+  def check_active(self):
+    # if any Active hands are present, bail out, otherwise continue to set Player inactive
+    for hand in self.hands:
+      if hand.state['Active'] == True:
+        return None
+
+    self.set_state(False, 'Inactive')
+
   def get_name(self):
     return self.name
+
+  def set_state(self, active, context):
+    self.state['Active'] = active
+    self.state['Context'] = context
 
   def __str__(self):
     playerString = ""
@@ -85,9 +96,8 @@ class Hand():
       self.cards = {'fixedCards':[], 'aces': []}
       self.value = 0
       self.count = 0
-      self.state = ""
+      self.state = {'Active': True, 'Context': 'Active'}
       self.num = 1
-      self.playable = True
 
   # iterate through all cards and sum hand value
   def recalculate_value(self):
@@ -116,16 +126,16 @@ class Hand():
       if self.value <= 21:
         break
     
-  # check if hand is bust or blackjack (loss/win), don't like code dupe
+  # Check if hand is Blackjack or Bust, otherwise leave in
   def check_hand(self):
     if(self.value == 21):
-      self.state = 'Blackjack'
-      self.playable = False
+      self.set_state(False, 'Blackjack')
     elif self.value > 21:
-      self.state = 'Bust'
-      self.playable = False
-    else:
-      self.state = 'Active'
+      self.set_state(False, 'Bust')
+
+  def set_state(self, active, context):
+    self.state['Active'] = active
+    self.state['Context'] = context
             
 class Deck():
 
@@ -250,7 +260,7 @@ class Game():
   def menu_select(self, num):
     for option in self.options:
       if(option.num == int(num)):
-        print("{} selected from options menu.".format(option.name))
+        #print("{} selected from options menu.".format(option.name))
         return option.method
         
 
@@ -338,7 +348,11 @@ class Game():
     if(player.bet <= player.cash):
       player.cash -= player.bet
       player.bet *= 2
-      player.states['Double'] = True
+
+      # change player state
+      hand.set_state(False, 'Double')
+
+      # double bet in bet tracker
       this.bets['Player {}'.format(player.num)] += player.bet
 
       # deal card
@@ -382,7 +396,9 @@ class Game():
   def surrender(self, player):
     player.bet /= 2
     player.cash += player.bet
-    player.playing = False
+
+    player.set_state(False, 'Surrendered')
+
     print("{} surrenders and takes back half their wager of {}".format(player.name, player.bet))
 
   def print_options(self):
