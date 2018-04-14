@@ -216,10 +216,10 @@ class Game():
     self.dealer = None
     self.deck = None
     self.play = True
-    self.buyIn = 0
     self.multi = True
     self.bets = {}
     self.options = []
+    self.minBet = 0
 
   def setup(self):
     # welcome message and Player creation
@@ -263,18 +263,12 @@ class Game():
         #print("{} selected from options menu.".format(option.name))
         return option.method
         
-
   def select_option(self):
     print("HERE")
     for option in self.options:
       print("HERE2")
       if(option.num == num):
         print("{} selected".format(option.name))
-
-  def place_bets(self):
-    for player in self.players:
-      print("Player {} ({}), what is your bet? (Your cash balance is: ${}".format(player.num, player.name, player.cash))
-      bet = input()
 
   def initial_deal(self):
     # deal two cards into Hand 1, all Players start with 1 Hand (0)
@@ -295,7 +289,10 @@ class Game():
       player.cash = cash
 
     self.dealer.cash = cash
-    self.buyIn = cash
+
+    print("What is to be the minimum bet for the game? ($1-$1000)")
+    minBet = num_range_input_validation(int, 1, 1000, "What is the minimum bet for the game?", "min bet must be between $1 and $1000")
+    self.minBet = minBet
 
   def create_players(self):
     players = ()
@@ -325,7 +322,17 @@ class Game():
       self.bets['Player '+str(player.num)] = 0
 
   def collect_bets(self):
-    return None
+    for player in self.players:
+      if(player.cash >= self.minBet):
+        print("Player {} ({}), what is your bet? (Must be at least {})\nCash balance: ${}".format(player.num, player.name, self.minBet, player.cash))
+        bet = num_range_input_validation(int, self.minBet, player.cash, "What is your bet? (Must be at least {})".format(self.minBet), "bet must be between {} and your cash ({})".format(self.minBet, player.cash))
+        # take bet away from cash and add to game.bets and player bet
+        self.bets['Player {}'.format(player.num)] = bet
+        player.bet = bet
+        player.cash -= bet
+      else: # has less than $100, broke
+        print("Sorry Player {} ({}), you're broke and can't play!".format(player.num, player.name))
+        player.set_state(False, 'Broke')
 
   def create_deck(self):
     deck = Deck()
