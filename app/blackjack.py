@@ -8,13 +8,12 @@ sys.path.append('..')
 
 import src.classes as blackjack
 
+
 # Game logic
 
 # Build game object, then set it up with Players, Dealer and Deck
 game = blackjack.Game()
 game.setup()
-
-game.players[0].cash = 99
 
 # Betting round
 game.collect_bets()
@@ -34,16 +33,24 @@ while game.play != False:
 				game.print_options()
 
 				choice = input()
+
 				option = game.menu_select(choice) # return correct option method
 
-				option(player) # sometimes requires player and hand, need solution
+				optionArgs = blackjack.get_arg_names(option)
 
-				game.play = False
+				option(eval(*optionArgs)) # sometimes requires player and hand, need solution
+				# doesn't work for multiple arguments, although solves for hit and stand and surrender
+				
+				#print("ARGS")
+				#print(blackjack.get_arg_names(option))
 
 			# after Player has acted on all Hands, check if still in the game
 			player.check_active()
 		else:
 			print("Sorry Player {} ({}), you only have ${} and the minimum bet is $100")
+
+	# bail out of game
+	game.play = False
 
 	# dealer behaviour - keep hitting until between 17 and 21
 	# check if anyone has hit Blackjack and announce winners
@@ -66,6 +73,10 @@ print("\n\n")
 
 for player in game.players:
 	print(player)
+
+print("\n\n")
+
+game.print_bet_tracker()
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created

@@ -3,6 +3,7 @@
 # A Player has Cards and set of actions
 # A Deck has Cards or is Empty
 from random import shuffle
+from inspect import getargspec as argnames
 
 # misc global functions - probably best in own file
 
@@ -29,6 +30,11 @@ def num_range_input_validation(inputType, minimum, maximum, intentMessage, range
           continue
 
   return num
+
+# return tuple of just the argument names, disclusing 'self'
+def get_arg_names(function):
+  # pull arg names as index 0, drop 'self' with slice, cast to tuple
+  return tuple(argnames(function)[0][1:])
 
 class Player():
 
@@ -319,14 +325,14 @@ class Game():
   def bet_tracker_setup(self):
     # bet tracker dictionary for all players {'Player x' : value}
     for player in self.players:
-      self.bets['Player '+str(player.num)] = 0
+      self.bets['Player '+str(player.num)] = player.bet
 
   def collect_bets(self):
     for player in self.players:
       if(player.cash >= self.minBet):
         print("Player {} ({}), what is your bet? (Must be at least {})\nCash balance: ${}".format(player.num, player.name, self.minBet, player.cash))
         bet = num_range_input_validation(int, self.minBet, player.cash, "What is your bet? (Must be at least {})".format(self.minBet), "bet must be between {} and your cash ({})".format(self.minBet, player.cash))
-        # take bet away from cash and add to game.bets and player bet
+        # take bet away from cash and add to game.bets and player.bet
         self.bets['Player {}'.format(player.num)] = bet
         player.bet = bet
         player.cash -= bet
