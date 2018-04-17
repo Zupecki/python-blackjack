@@ -36,13 +36,10 @@ while game.play != False:
 
 				option = game.menu_select(choice) # return correct option method
 
-				optionArgs = blackjack.get_arg_names(option)
+				#optionArgs = blackjack.get_arg_names(option)
 
-				option(eval(*optionArgs)) # sometimes requires player and hand, need solution
-				# doesn't work for multiple arguments, although solves for hit and stand and surrender
-				
-				#print("ARGS")
-				#print(blackjack.get_arg_names(option))
+				option(player, hand) # sometimes requires player and hand, need solution
+				# doesn't work for multiple arguments, although solves for hit, stand and surrender
 
 			# after Player has acted on all Hands, check if still in the game
 			player.check_active()

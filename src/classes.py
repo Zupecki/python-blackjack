@@ -325,7 +325,7 @@ class Game():
   def bet_tracker_setup(self):
     # bet tracker dictionary for all players {'Player x' : value}
     for player in self.players:
-      self.bets['Player '+str(player.num)] = player.bet
+      self.bets['Player '+str(player.num)] = player.bet # THIS DOESN'T WORK?
 
   def collect_bets(self):
     for player in self.players:
@@ -336,7 +336,7 @@ class Game():
         self.bets['Player {}'.format(player.num)] = bet
         player.bet = bet
         player.cash -= bet
-      else: # has less than $100, broke
+      else: # has less than games min bet, broke
         print("Sorry Player {} ({}), you're broke and can't play!".format(player.num, player.name))
         player.set_state(False, 'Broke')
 
@@ -348,11 +348,12 @@ class Game():
     return deck
 
 # Player passes and holds Hand as is
-  def stand(self, player):
-    print("{} stands with his/her cards.".format(player.name))
+  def stand(self, player, hand):
+    print("{} stands with his/her cards on Hand {}.".format(player.name, hand.num))
 
 # Player requests extra card
-  def hit(self, hand):
+  def hit(self, player, hand):
+    print("{} hits and receives a new card for Hand {}.".format(player.name, hand.num))
     self.dealer.deal_card(hand, self.deck)
 
 # if Player has enough cash to double bet, double bet and
@@ -366,7 +367,7 @@ class Game():
       hand.set_state(False, 'Double')
 
       # double bet in bet tracker
-      this.bets['Player {}'.format(player.num)] += player.bet
+      self.bets['Player {}'.format(player.num)] += player.bet
 
       # deal card
       self.dealer.deal_card(hand, self.deck)
@@ -382,7 +383,7 @@ class Game():
     newHand = Hand()
     
     # assign Hand number
-    newHand.num = len(player.hands + 1)
+    newHand.num = len(player.hands) + 1
 
     # check for card type
     if(len(hand.cards['fixedCards']) == 2):
@@ -406,13 +407,13 @@ class Game():
     return None
 
   # forfeit half of bet and drop out, only possible on first two cards
-  def surrender(self, player):
+  def surrender(self, player, hand):
     player.bet /= 2
     player.cash += player.bet
 
     player.set_state(False, 'Surrendered')
 
-    print("{} surrenders and takes back half their wager of {}".format(player.name, player.bet))
+    print("{} surrenders Hand {} and takes back half their wager of {}".format(player.name, hand.num, player.bet))
 
   def print_options(self):
     for option in self.options:
