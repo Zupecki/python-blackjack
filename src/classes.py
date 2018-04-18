@@ -31,7 +31,7 @@ def num_range_input_validation(inputType, minimum, maximum, intentMessage, range
 
   return num
 
-# return tuple of just the argument names, disclusing 'self'
+# return tuple of just the argument names, discluding 'self' // redundant code, leaving for record
 def get_arg_names(function):
   # pull arg names as index 0, drop 'self' with slice, cast to tuple
   return tuple(argnames(function)[0][1:])
@@ -102,7 +102,7 @@ class Hand():
       self.cards = {'fixedCards':[], 'aces': []}
       self.value = 0
       self.count = 0
-      self.state = {'Active': True, 'Context': 'Active'}
+      self.state = {'Active': True, 'Context': 'Playable'}
       self.num = 1
 
   # iterate through all cards and sum hand value
@@ -363,11 +363,13 @@ class Game():
       player.cash -= player.bet
       player.bet *= 2
 
+      print("{} doubles their bet to {} and receives a new card for Hand {}.".format(player.name, player.bet, hand.num))
+
       # change player state
       hand.set_state(False, 'Double')
 
       # double bet in bet tracker
-      self.bets['Player {}'.format(player.num)] += player.bet
+      self.bets['Player {}'.format(player.num)] = player.bet
 
       # deal card
       self.dealer.deal_card(hand, self.deck)
@@ -384,6 +386,9 @@ class Game():
     
     # assign Hand number
     newHand.num = len(player.hands) + 1
+
+    # print output
+    print("{} splits their hands and receives a new card for Hand {} and Hand {}.".format(player.name, hand.num, newHand.num))
 
     # check for card type
     if(len(hand.cards['fixedCards']) == 2):
@@ -413,7 +418,7 @@ class Game():
 
     player.set_state(False, 'Surrendered')
 
-    print("{} surrenders Hand {} and takes back half their wager of {}".format(player.name, hand.num, player.bet))
+    print("{} surrenders Hand {} and takes back half their wager of {}, totalling {}.".format(player.name, hand.num, player.bet*2, player.bet))
 
   def print_options(self):
     for option in self.options:
