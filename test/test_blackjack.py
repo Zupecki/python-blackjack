@@ -10,13 +10,13 @@ from src.classes import Game, Player, Dealer, Hand, Card, Deck
 class TestBlackjackPlayer(unittest.TestCase):
 
 	def setUp(self):
-		self.player = Player('Michael')
+		self.player = Player('Michael', 1)
 
 	def test_player_name_is_string(self):
 		self.assertIsInstance(self.player.name, str)
 
 	def test_player_hand_is_hand_object(self):
-		self.assertIsInstance(self.player.hand, Hand)
+		self.assertIsInstance(self.player.hands[0], Hand)
 
 class TestBlackjackHand(unittest.TestCase):
 
@@ -36,30 +36,35 @@ class TestBlackjackHand(unittest.TestCase):
 		Card("Spades", 11, "Ace"), Card("Hearts", 11, "Ace"))
 
 		for card in testCards:
-			self.hand.insert_card(card)
+			self.hand.cards['allCards'].append(card)
+			self.hand.cards['aces'].append(card)
+
+		self.hand.recalculate_value()
 
 		self.assertEqual(14, self.hand.value)
 
 	def test_card_inserts_into_hand_correctly(self):
 		card = Card("Diamonds", 10, "King")
-		self.hand.insert_card(card)
+		self.hand.cards['allCards'].append(card)
 		
 		# check first index for card
-		self.assertEqual(card, self.hand.cards['fixedCards'][0])
+		self.assertEqual(card, self.hand.cards['allCards'][0])
 
 	def test_hand_value_is_correct(self):
 		testCards = (Card("Diamond", 10, "Jack"), Card("Hearts", 2, "Two"))
 
 		for card in testCards:
-			self.hand.insert_card(card)
+			self.hand.cards['allCards'].append(card)
+
+		self.hand.recalculate_value()
 
 		self.assertEqual(12, self.hand.value)
 
 class TestBlackjackDealer(unittest.TestCase):
 
 	def setUp(self):
-		self.player = Player("Michael")
-		self.dealer = Dealer("Dealer")
+		self.player = Player("Michael", 1)
+		self.dealer = Dealer("Dealer", 0)
 		self.deck = Deck()
 
 	def	test_dealer_deals_card_to_player_correctly(self):
@@ -69,15 +74,12 @@ class TestBlackjackDealer(unittest.TestCase):
 		lastCard = self.deck.cards[len(self.deck.cards)-1]
 
 		# deal last card to Player, from end of deck
-		self.dealer.deal_card(self.player, self.deck)
+		self.dealer.deal_card(self.player.hands[0], self.deck, 'London')
 
 		# get card type from Player, might have been ace
-		if(len(self.player.hand.cards['fixedCards']) > 0):
-			cardType = 'fixedCards'
-		else:
-			cardType = 'aces'
+		card = self.player.hands[0].cards['allCards'][0]
 
-		self.assertEqual(lastCard, self.player.hand.cards[cardType][0])
+		self.assertEqual(lastCard, self.player.hands[0].cards['allCards'][0])
 
 class TestBlackjackCard(unittest.TestCase):
 

@@ -49,9 +49,11 @@ class Player():
 
   def show_hand(self, hand):
 
-    for key, value in hand.cards.items():
-      for card in value:
+    for card in hand.cards['allCards']:
+      if(card.faceUp == True):
         print(card)
+      else:
+        print("Face Down - ?")
 
   def check_active(self):
     # if any Active hands are present, bail out, otherwise continue to set Player inactive
@@ -82,16 +84,26 @@ class Dealer(Player):
   def __init__(self, name, num):
     Player.__init__(self, name, num)
 
-  def deal_card(self, hand, deck):
+  def deal_card(self, hand, deck, dealStyle):
     card = deck.pop_card()
 
-    if(card.title != "Ace"):
-      cardType = "fixedCards"
-    else:
-      cardType = "aces"
+    # check the deal style, default is London
+    if(dealStyle == 'Nevada'):
+      card.faceUp = False
+    elif(dealStyle == 'London'):
+      card.faceUp = True
+    elif(dealStyle == 'Dealer'): # Dealer's cards always face down, then one can be flipped
+      card.faceUp = False
 
-    # add card to Hand, update hand stats, assign bust or not
-    hand.cards[cardType].append(card)
+    # append all cards to allCards list
+    hand.cards['allCards'].append(card)
+
+    # if Ace add same card into aces list too for easy manipulation
+    # same card exists in two places
+    if(card.title == "Ace"):
+      hand.cards['aces'].append(card)
+
+    # Update hand stats, assign bust or not
     hand.recalculate_value()
     hand.check_hand()
 
@@ -99,7 +111,7 @@ class Dealer(Player):
 
 class Hand():
   def __init__(self):
-      self.cards = {'fixedCards':[], 'aces': []}
+      self.cards = {'allCards':[], 'aces': []}
       self.value = 0
       self.count = 0
       self.state = {'Active': True, 'Context': 'Playable'}
@@ -110,16 +122,14 @@ class Hand():
     self.value = 0
 
     # sum value of cards
-    for key in self.cards:
-      # sum value of all cards
-      for card in self.cards[key]:
-        self.value += card.value
+    for card in self.cards['allCards']:
+      self.value += card.value
 
-      # if hand value over 21, and there is at least one ace, else bust!
-      if self.value > 21 and len(self.cards['aces']) > 0:
-        self.change_aces()
+    # if hand value over 21, and there is at least one ace, else bust!
+    if self.value > 21 and len(self.cards['aces']) > 0:
+      self.change_aces()
 
-    self.count = len(self.cards['fixedCards']) + len(self.cards['aces'])
+    self.count = len(self.cards['allCards']) + len(self.cards['aces'])
 
   # called if hand exceeds 21 and holding aces. Change aces to 1 until hand less than 21
   def change_aces(self):
@@ -197,10 +207,14 @@ class Card():
     self.suit = suit
     self.value = value
     self.title = title
+    self.faceUp = True
     # adding attributes for potential art to be added
     # art for Front,Back, pos for x,y
     self.art = [None, None]
     self.pos = [None, None]
+
+  def flip_card(self):
+    self.faceUp = not self.faceUp
 
   # print card in correct format
   def __str__(self):
@@ -226,6 +240,7 @@ class Game():
     self.bets = {}
     self.options = []
     self.minBet = 0
+    self.dealStyle = 'London'
 
   def setup(self):
     # welcome message and Player creation
@@ -281,10 +296,13 @@ class Game():
     for x in range(0,2):
       for player in self.players:
         for hand in player.hands:
-          self.dealer.deal_card(hand, self.deck)
+          self.dealer.deal_card(hand, self.deck, self.dealStyle)
       # deal Dealer, too
       for hand in self.dealer.hands:
-        self.dealer.deal_card(hand, self.deck)
+        self.dealer.deal_card(hand, self.deck, 'Dealer')
+
+    # flip one Dealer Card
+    self.dealer.hands[0].cards['allCards'][0].flip_card()
 
   def assign_cash(self):
     print("How much cash does each Player start with? ($100-$1000)")
@@ -354,7 +372,7 @@ class Game():
 # Player requests extra card
   def hit(self, player, hand):
     print("{} hits and receives a new card for Hand {}.".format(player.name, hand.num))
-    self.dealer.deal_card(hand, self.deck)
+    self.dealer.deal_card(hand, self.deck, self.dealStyle)
 
 # if Player has enough cash to double bet, double bet and
 # set state double to True
@@ -372,7 +390,7 @@ class Game():
       self.bets['Player {}'.format(player.num)] = player.bet
 
       # deal card
-      self.dealer.deal_card(hand, self.deck)
+      self.dealer.deal_card(hand, self.deck, self.dealStyle)
 
       return True
     else:
@@ -391,8 +409,8 @@ class Game():
     print("{} splits their hands and receives a new card for Hand {} and Hand {}.".format(player.name, hand.num, newHand.num))
 
     # check for card type
-    if(len(hand.cards['fixedCards']) == 2):
-      cardType = 'fixedCards'
+    if(len(hand.cards['allCards']) == 2):
+      cardType = 'allCards'
     else:
       cardType = 'aces'
 
@@ -403,8 +421,8 @@ class Game():
     newHand.cards[cardType].append(card)
 
     # deal a new card to each Hand
-    self.dealer.deal_card(hand, self.deck)
-    self.dealer.deal_card(newHand, self.deck)
+    self.dealer.deal_card(hand, self.deck, self.dealStyle)
+    self.dealer.deal_card(newHand, self.deck, self.dealStyle)
    
     # add Hand to player's hands
     player.hands += (newHand, )
