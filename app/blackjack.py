@@ -27,23 +27,24 @@ while game.play != False:
 		if(player.state['Active'] == True):
 			# print Player details here - name, cash, hand info?
 			for hand in player.hands:
-				print("Dealers Hand:\n")
-				game.dealer.show_hand(game.dealer.hands[0])
+				# allow player to keep hitting hand while hand is Active
+				while hand.state['Active'] == True:
+					print("Dealers Hand:\n")
+					game.dealer.show_hand(game.dealer.hands[0])
 
-				print("\nPlayer {} ({}) - what would you like to do with Hand {}?\n".format(player.num, player.name, hand.num))
-				player.show_hand(hand)
-				game.generate_options(hand)
-				game.print_options()
+					print("\nPlayer {} ({}) - what would you like to do with Hand {}?\n".format(player.num, player.name, hand.num))
+					player.show_hand(hand)
+					game.generate_options(hand)
+					game.print_options()
 
-				choice = input()
+					choice = input()
+					option = game.menu_select(choice) # return correct option method
 
-				option = game.menu_select(choice) # return correct option method
+					# // redundant code, leaving for record
+					#optionArgs = blackjack.get_arg_names(option)
 
-				# // redundant code, leaving for record
-				#optionArgs = blackjack.get_arg_names(option)
-
-				# call option and pass in player and hand objects
-				option(player, hand)
+					# call option and pass in player and hand objects
+					option(player, hand)
 
 			# after Player has acted on all Hands, check if still in the game
 			player.check_active()
@@ -62,7 +63,7 @@ print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))
 	# dealer behaviour - keep hitting until between 17 and 21
 	# check if anyone has hit Blackjack and announce winners
 	# pay out results, flush bet tracker
-	
+
 	# should there be a player_turn function to take in each Player, cycle through Hands etc?
 	# should a hand keep track of options for itself?
 	# should options be persistent and then dynamically pulled for each hand?

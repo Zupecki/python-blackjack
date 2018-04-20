@@ -369,6 +369,8 @@ class Game():
   def stand(self, player, hand):
     print("{} stands with his/her cards on Hand {}.".format(player.name, hand.num))
 
+    hand.set_state(False, 'Stand')
+
 # Player requests extra card
   def hit(self, player, hand):
     print("{} hits and receives a new card for Hand {}.".format(player.name, hand.num))
