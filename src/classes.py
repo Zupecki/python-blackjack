@@ -222,8 +222,8 @@ class Card():
 
 class Option():
 
-  def __init__(self, num, name, method):
-    self.num = num
+  def __init__(self, name, method):
+    self.num = 0
     self.name = name
     self.method = method
 
@@ -262,21 +262,36 @@ class Game():
     self.bet_tracker_setup()
 
   def generate_options(self, hand):
-    stand = Option(1, "Stand", self.stand)
-    hit = Option(2, "Hit", self.hit)
-    double = Option(3, "Double", self.double)
-    split = Option(4, "Split", self.split)
-    surrender = Option(5, "Surrender", self.surrender)
-
-    # check for same value cards for split option to be added or removed
-    #for cardType in hand.cards:
-    #  for card in cardType:
-    #    pass
-
-    # check if first two cards for double
+    stand = Option("Stand", self.stand)
+    hit = Option("Hit", self.hit)
+    double = Option("Double", self.double)
+    split = Option("Split", self.split)
+    surrender = Option("Surrender", self.surrender)
 
     # update options
-    self.options = [stand, hit, double, split, surrender]
+    self.options = [stand, hit]
+
+    # check if first two cards for double
+    if(len(hand.cards['allCards']) == 2):
+      self.options.append(double)
+
+    # check for same value cards for split option to be added or removed
+    for card in hand.cards['allCards']:
+      cardVal = card.value
+      for compareCard in hand.cards['allCards']:
+        if(card != compareCard and cardVal == compareCard.value):
+          self.options.append(split) # if not clone card, but same value, add split
+          break
+
+    # add surrender to end
+    self.options.append(surrender)
+
+    # generate nums for options
+    for x in range(1,len(self.options)):
+      self.options[x].num = x
+
+    # convert to set to fix multiple split bug - NEED BETTER SOLUTION
+    self.options = set(self.options)
 
   def menu_select(self, num):
     for option in self.options:
@@ -399,12 +414,11 @@ class Game():
       return False
 
   # if Player has double cards, pass in Hand with doubles
-  # allow split to add new hand and deal extra card to
-  # each Hand. handInfo is {num: x, cardType: x}
+  # allow split to add new hand and deal extra card to each Hand
   def split(self, player, hand):
     newHand = Hand()
     
-    # assign Hand number
+    # assign Hand number - current amount +1
     newHand.num = len(player.hands) + 1
 
     # print output
@@ -428,8 +442,6 @@ class Game():
    
     # add Hand to player's hands
     player.hands += (newHand, )
-
-    return None
 
   # forfeit half of bet and drop out, only possible on first two cards
   def surrender(self, player, hand):

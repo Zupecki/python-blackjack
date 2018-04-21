@@ -46,6 +46,9 @@ while game.play != False:
 					# call option and pass in player and hand objects
 					option(player, hand)
 
+					# SPLIT NOT WORKING AS SECOND HAND NEVER PROPOSITIONED FOR PLAY. MAYBE
+					# NOT ADDED TO FOR LOOP SINCE CODE ALREADY RUNNING?
+
 			# after Player has acted on all Hands, check if still in the game
 			player.check_active()
 		else:
