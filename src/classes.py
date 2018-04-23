@@ -268,6 +268,8 @@ class Game():
     split = Option("Split", self.split)
     surrender = Option("Surrender", self.surrender)
 
+    useSplit = False
+
     # update options
     self.options = [stand, hit]
 
@@ -280,18 +282,21 @@ class Game():
       cardVal = card.value
       for compareCard in hand.cards['allCards']:
         if(card != compareCard and cardVal == compareCard.value):
-          self.options.append(split) # if not clone card, but same value, add split
+          useSplit = True
           break
+
+    if(useSplit == True):
+       self.options.append(split)
 
     # add surrender to end
     self.options.append(surrender)
 
     # generate nums for options
-    for x in range(1,len(self.options)):
-      self.options[x].num = x
+    for x in range(0,len(self.options)):
+      self.options[x].num = x+1
 
-    # convert to set to fix multiple split bug - NEED BETTER SOLUTION
-    self.options = set(self.options)
+    # convert to set to fix multiple split bug - NEED BETTER SOLUTION, RUINS ORDERED LIST
+    #self.options = set(self.options)
 
   def menu_select(self, num):
     for option in self.options:
