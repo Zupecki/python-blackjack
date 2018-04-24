@@ -57,8 +57,10 @@ while game.play != False:
 	# bail out of game
 	game.play = False
 
+# dealer hits
+game.dealer_hit()
+
 # show dealers hand
-game.dealer.hands[0].cards['allCards'][1].flip_card()
 print("\n-------\nDealers Hand: ")
 game.dealer.show_hand(game.dealer.hands[0])
 print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))

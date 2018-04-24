@@ -116,6 +116,7 @@ class Hand():
       self.count = 0
       self.state = {'Active': True, 'Context': 'Playable'}
       self.num = 1
+      self.soft = True
 
   # iterate through all cards and sum hand value
   def recalculate_value(self):
@@ -297,6 +298,19 @@ class Game():
 
     # convert to set to fix multiple split bug - NEED BETTER SOLUTION, RUINS ORDERED LIST
     #self.options = set(self.options)
+
+  def dealer_hit(self):
+    hand = self.dealer.hands[0]
+
+    # flip face down card
+    hand.cards['allCards'][1].flip_card()
+
+    while(hand.value < 17 and hand.soft == True):
+      self.dealer.deal_card(hand, self.deck, self.dealStyle)
+
+    # check for soft 17
+    # if(len(hand['aces']) > 0):
+
 
   def menu_select(self, num):
     for option in self.options:
