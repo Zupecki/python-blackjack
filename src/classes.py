@@ -392,6 +392,25 @@ class Game():
         print("Sorry Player {} ({}), you're broke and can't play!".format(player.num, player.name))
         player.set_state(False, 'Broke')
 
+  def payout_winnings(self):
+    #if(self.dealer.state['Active'] == False and self.dealer.state['Context'] == 'Bust'):
+    if(self.dealer.hands[0].value > 21):
+      for player in self.players:
+        if(player.state['Context'] != 'Bust'):
+          player.cash += player.bet*2
+          print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
+          print("You now have ${}!".format(player.cash))
+    else:
+      for player in self.players:
+        for hand in player.hands:
+          if(hand.state['Context'] != 'Bust' and hand.value > self.dealer.hands[0].value):
+            player.cash += player.bet*2
+            print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
+            print("You now have ${}!".format(player.cash))
+            break
+          else:
+            print("Sorry Player {} ({}), you were beated by the dealer and lost ${}!".format(player.num, player.name, player.bet))
+
   def create_deck(self):
     deck = Deck()
     deck.build()
@@ -427,10 +446,6 @@ class Game():
 
       # deal card
       self.dealer.deal_card(hand, self.deck, self.dealStyle)
-
-      return True
-    else:
-      return False
 
   # if Player has double cards, pass in Hand with doubles
   # allow split to add new hand and deal extra card to each Hand

@@ -8,7 +8,6 @@ sys.path.append('..')
 
 import src.classes as blackjack
 
-
 # Game logic
 
 # Build game object, then set it up with Players, Dealer and Deck
@@ -89,6 +88,8 @@ for player in game.players:
 print("\n\n")
 
 game.print_bet_tracker()
+
+game.payout_winnings()
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
