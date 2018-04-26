@@ -55,13 +55,24 @@ class Player():
       else:
         print("Face Down - ?")
 
-  def check_active(self):
-    # if any Active hands are present, bail out, otherwise continue to set Player inactive
-    for hand in self.hands:
-      if hand.state['Active'] == True:
-        return None
+  # Player turns are over, check state and set validity for potential payouts
+  def end_state(self):
+    context = ""
+    busts = 0
 
-    self.set_state(False, 'Inactive')
+    # check hands to see if any are valid, count busts
+    for hand in self.hands:
+      if hand.state['Context'] != 'Bust':
+        context = "Valid"
+        break
+      else:
+        busts += 1
+    
+    # if Player surrendered, or all hands are Bust, set to invalid
+    if(self.state['Context'] == 'Surrendered' or len(self.hands) == busts):
+      context = "Invalid"
+
+    self.set_state(False, context)
 
   def get_name(self):
     return self.name
@@ -72,7 +83,7 @@ class Player():
 
   def __str__(self):
     playerString = ""
-    playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands))
+    playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\nActive: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands), self.state['Active'])
 
     for hand in self.hands:
       playerString += "Hand {} value: {}\n".format(hand.num, hand.value)
@@ -84,7 +95,7 @@ class Dealer(Player):
   def __init__(self, name, num):
     Player.__init__(self, name, num)
 
-  def deal_card(self, hand, deck, dealStyle):
+  def deal_card(self, player, hand, deck, dealStyle):
     card = deck.pop_card()
 
     # check the deal style, default is London
@@ -143,7 +154,7 @@ class Hand():
       if self.value <= 21:
         break
     
-  # Check if hand is Blackjack or Bust, otherwise leave in
+  # Check if hand is Blackjack or Bust, otherwise leave untouched
   def check_hand(self):
     if(self.value == 21):
       self.set_state(False, 'Blackjack')
@@ -306,7 +317,7 @@ class Game():
     hand.cards['allCards'][1].flip_card()
 
     while(hand.value < 17 and hand.soft == True):
-      self.dealer.deal_card(hand, self.deck, self.dealStyle)
+      self.dealer.deal_card(self.dealer, hand, self.deck, self.dealStyle)
 
     # check for soft 17
     # if(len(hand['aces']) > 0):
@@ -330,10 +341,10 @@ class Game():
     for x in range(0,2):
       for player in self.players:
         for hand in player.hands:
-          self.dealer.deal_card(hand, self.deck, self.dealStyle)
+          self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
       # deal Dealer, too
       for hand in self.dealer.hands:
-        self.dealer.deal_card(hand, self.deck, 'Dealer')
+        self.dealer.deal_card(player, hand, self.deck, 'Dealer')
 
     # flip one Dealer Card
     self.dealer.hands[0].cards['allCards'][0].flip_card()
@@ -392,24 +403,41 @@ class Game():
         print("Sorry Player {} ({}), you're broke and can't play!".format(player.num, player.name))
         player.set_state(False, 'Broke')
 
-  def payout_winnings(self):
-    #if(self.dealer.state['Active'] == False and self.dealer.state['Context'] == 'Bust'):
-    if(self.dealer.hands[0].value > 21):
+  def process_results(self):
+    results = {'Winners':[], 'Losers':[]}
+
+    if(self.dealer.state['Context'] == 'Invalid'):
+    # if dealer bust, pay out everyone with valid hands
       for player in self.players:
-        if(player.state['Context'] != 'Bust'):
-          player.cash += player.bet*2
-          print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
-          print("You now have ${}!".format(player.cash))
+        if(player.state['Context'] == 'Valid'):
+          results['Winners'].append(player)
+
+        else:
+          results['Losers'].append(player)
+
+    # else dealer not bust, compare hands
     else:
       for player in self.players:
-        for hand in player.hands:
-          if(hand.state['Context'] != 'Bust' and hand.value > self.dealer.hands[0].value):
-            player.cash += player.bet*2
-            print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
-            print("You now have ${}!".format(player.cash))
-            break
-          else:
-            print("Sorry Player {} ({}), you were beated by the dealer and lost ${}!".format(player.num, player.name, player.bet))
+        if(player.state['Context'] != 'Bust'):
+          for hand in player.hands:
+            if(hand.state['Context'] != 'Bust' and hand.value > self.dealer.hands[0].value):
+              results['Winners'].append(player)
+              break
+
+            else:
+              results['Losers'].append(player)
+
+    # print results
+    for player in results['Winners']:
+      player.cash += player.bet*2
+      print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
+      print("You now have ${}!".format(player.cash))
+
+    for player in results['Losers']:
+      print("Sorry Player {} ({}), you were beaten by the dealer and lost ${}!".format(player.num, player.name, player.bet))
+
+    # print Dealer final state for test purposes
+    print("Dealer states:\nDealer Active - {}\nDealer Context - {}\nHand Active - {}\nHand Context - {}\n".format(self.dealer.state['Active'], self.dealer.state['Context'], self.dealer.hands[0].state['Active'], self.dealer.hands[0].state['Context']))
 
   def create_deck(self):
     deck = Deck()
@@ -427,7 +455,7 @@ class Game():
 # Player requests extra card
   def hit(self, player, hand):
     print("{} hits and receives a new card for Hand {}.".format(player.name, hand.num))
-    self.dealer.deal_card(hand, self.deck, self.dealStyle)
+    self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
 
 # if Player has enough cash to double bet, double bet and
 # set state double to True
@@ -445,7 +473,7 @@ class Game():
       self.bets['Player {}'.format(player.num)] = player.bet
 
       # deal card
-      self.dealer.deal_card(hand, self.deck, self.dealStyle)
+      self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
 
   # if Player has double cards, pass in Hand with doubles
   # allow split to add new hand and deal extra card to each Hand
@@ -471,8 +499,8 @@ class Game():
     newHand.cards[cardType].append(card)
 
     # deal a new card to each Hand
-    self.dealer.deal_card(hand, self.deck, self.dealStyle)
-    self.dealer.deal_card(newHand, self.deck, self.dealStyle)
+    self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
+    self.dealer.deal_card(player, newHand, self.deck, self.dealStyle)
    
     # add Hand to player's hands
     player.hands += (newHand, )

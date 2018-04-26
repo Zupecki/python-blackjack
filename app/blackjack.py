@@ -49,7 +49,7 @@ while game.play != False:
 					# NOT ADDED TO FOR LOOP SINCE CODE ALREADY RUNNING?
 
 			# after Player has acted on all Hands, check if still in the game
-			player.check_active()
+			player.end_state()
 		else:
 			print("Sorry Player {} ({}), you only have ${} and the minimum bet is $100")
 
@@ -58,6 +58,9 @@ while game.play != False:
 
 # dealer hits
 game.dealer_hit()
+
+# dealer end state
+game.dealer.end_state()
 
 # show dealers hand
 print("\n-------\nDealers Hand: ")
@@ -89,7 +92,7 @@ print("\n\n")
 
 game.print_bet_tracker()
 
-game.payout_winnings()
+game.process_results()
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
