@@ -411,7 +411,6 @@ class Game():
       for player in self.players:
         if(player.state['Context'] == 'Valid'):
           results['Winners'].append(player)
-
         else:
           results['Losers'].append(player)
 
@@ -422,8 +421,7 @@ class Game():
           for hand in player.hands:
             if(hand.state['Context'] != 'Bust' and hand.value > self.dealer.hands[0].value):
               results['Winners'].append(player)
-              break
-
+              break #  break because once one Hand wins, that's all that matters
             else:
               results['Losers'].append(player)
 
