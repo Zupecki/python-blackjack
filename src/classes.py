@@ -307,9 +307,6 @@ class Game():
     for x in range(0,len(self.options)):
       self.options[x].num = x+1
 
-    # convert to set to fix multiple split bug - NEED BETTER SOLUTION, RUINS ORDERED LIST
-    #self.options = set(self.options)
-
   def dealer_hit(self):
     hand = self.dealer.hands[0]
 

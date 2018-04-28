@@ -30,7 +30,7 @@ while game.play != False:
 				for hand in player.hands:
 					# allow player to keep hitting hand while hand is Active
 					while hand.state['Active'] == True:
-						print("Dealers Hand:\n")
+						print("\n-- ROUND 1 --\nDealers Hand:\n")
 						game.dealer.show_hand(game.dealer.hands[0])
 
 						print("\nPlayer {} ({}) - what would you like to do with Hand {}?\n".format(player.num, player.name, hand.num))
@@ -47,14 +47,11 @@ while game.play != False:
 						# call option and pass in player and hand objects
 						option(player, hand)
 
-						# check if Player still has any active Hand (maybe new Hand was created via split)
-						turn = False
-						for hand in player.hands:
-							if(hand.state['Active'] == True):
-								turn = True
-
-						# SPLIT NOT WORKING AS SECOND HAND NEVER PROPOSITIONED FOR PLAY. MAYBE
-						# NOT ADDED TO FOR LOOP SINCE CODE ALREADY RUNNING?
+					# check if Player still has any active Hand (maybe new Hand was created via split)
+					turn = False
+					for hand in player.hands:
+						if(hand.state['Active'] == True):
+							turn = True
 
 			# after Player has acted on all Hands, check if still in the game
 			player.end_state()
@@ -76,7 +73,6 @@ game.dealer.show_hand(game.dealer.hands[0])
 print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))
 
 	# flush bet tracker
-	# split bug - new Hand not being propositioned because for loop on hands already loaded. Maybe run new Hand immediately?
 	# FORMATTING - MAKE PRETTY
 
 	# should there be a player_turn function to take in each Player, cycle through Hands etc?
@@ -101,6 +97,21 @@ print("\n\n")
 game.print_bet_tracker()
 
 game.process_results()
+
+# play again? (needs to moved back up, or could create brand new game and import Players)
+print("Would you like to play another round, Y/N?")
+
+while True:
+	choice = input().upper()
+
+	if(choice == 'Y' or choice == 'N'):
+		if(choice == 'Y'):
+			# reset bet tracker and game, loop again
+		elif(choice == 'N'):
+			break
+	else:
+		print("Sorry, must be Y or N, try again.")
+		continue
 
 # Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
 # Cards created
