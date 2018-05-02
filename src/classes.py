@@ -253,6 +253,7 @@ class Game():
     self.options = []
     self.minBet = 0
     self.dealStyle = 'London'
+    self.playerRound = True
 
   def setup(self):
     # welcome message and Player creation
@@ -529,8 +530,20 @@ class Game():
     # code
   
   def reset(self):
-    return None
-    # code
+    # wipe Player bets to 0, empty Hands, reset states
+    for player in self.players:
+      player.bet = 0
+      player.hands = (Hand(), )
+      player.state = {'Active': True, 'Context': 'Active'}
+
+    # create new deck
+    self.deck = self.create_deck()
+
+    # empty Dealer Hands
+    self.dealer.hands = (Hand(), )
+
+    # reset playerRound boolean
+    self.playerRound = True
 
   def print_players(self):
     for player in self.players:
