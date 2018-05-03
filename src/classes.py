@@ -289,14 +289,13 @@ class Game():
     # check if first two cards for double
     if(len(hand.cards['allCards']) == 2):
       self.options.append(double)
-
-    # check for same value cards for split option to be added or removed
-    for card in hand.cards['allCards']:
-      cardVal = card.value
-      for compareCard in hand.cards['allCards']:
-        if(card != compareCard and cardVal == compareCard.value):
-          useSplit = True
-          break
+      # check for same value cards on intial deal for split option
+      for card in hand.cards['allCards']:
+        cardVal = card.value
+        for compareCard in hand.cards['allCards']:
+          if(card != compareCard and cardVal == compareCard.value):
+            useSplit = True
+            break
 
     if(useSplit == True):
        self.options.append(split)
@@ -402,7 +401,7 @@ class Game():
         player.set_state(False, 'Broke')
 
   def process_results(self):
-    results = {'Winners':[], 'Losers':[]}
+    results = {'Winners':[], 'Losers':[], 'Ties':[]}
 
     if(self.dealer.state['Context'] == 'Invalid'):
     # if dealer bust, pay out everyone with valid hands
@@ -414,19 +413,40 @@ class Game():
 
     # else dealer not bust, compare hands
     else:
+      dealerHand = self.dealer.hands[0].value
       for player in self.players:
+        playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
         if(player.state['Context'] != 'Bust'):
+          playerHandCount = len(player.hands)
           for hand in player.hands:
-            if(hand.state['Context'] != 'Bust' and hand.value > self.dealer.hands[0].value):
-              results['Winners'].append(player)
-              break #  break because once one Hand wins, that's all that matters
-            else:
-              results['Losers'].append(player)
+            if(hand.state['Context'] != 'Bust'):
+              if(hand.value > dealerHand):
+                playerHandStates['Wins'] += 1
+              elif(hand.value == dealerHand):
+                playerHandStates['Ties'] += 1
+              elif(hand.value < dealerHand):
+                playerHandStates['Losses'] += 1
+        else:
+          results['Losers'].append(player)
+
+        if(playerHandStates['Wins'] > 0):
+          results['Winners'].append(player)
+          break
+        elif(playerHandStates['Ties'] > 0):
+          results['Ties'].append(player)
+          break
+        else:
+          results['Losers'].append(player)
 
     # print results
     for player in results['Winners']:
       player.cash += player.bet*2
       print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
+      print("You now have ${}!".format(player.cash))
+
+    for player in results['Ties']:
+      player.cash += player.bet
+      print("Player {} ({}), you tied with the dealer and receive your ${} back!".format(player.num, player.name, player.bet*2))
       print("You now have ${}!".format(player.cash))
 
     for player in results['Losers']:
@@ -528,6 +548,13 @@ class Game():
   def end(self):
     return None
     # code
+
+  def check_players_money(self):
+    for player in self.players:
+      if(player.cash >= self.minBet):
+        return True
+    print("Sorry, no one has enough money to buy in for the minimum ${} bet, game over!".format(self.minBet))
+    return False
   
   def reset(self):
     # wipe Player bets to 0, empty Hands, reset states

@@ -15,6 +15,10 @@ game = blackjack.Game()
 game.setup()
 
 while game.play != False:
+	# check at least one Player has enough cash
+	if(not game.check_players_money()):
+		break
+
 	# Betting round
 	game.collect_bets()
 
@@ -73,9 +77,9 @@ while game.play != False:
 	game.dealer.show_hand(game.dealer.hands[0])
 	print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))
 
-		# flush bet tracker
-		# add max splits to 4 (4 max hands per player)
-		# add ability to play another round (maybe game.round for round and game.play for ending game) - will likely have to wrap game loop in function
+		# clean up code
+		# bug sometimes player results not printing?
+		# add bust and blackjack reporting between Player moves
 		# FORMATTING - MAKE PRETTY
 
 		# should there be a player_turn function to take in each Player, cycle through Hands etc?
