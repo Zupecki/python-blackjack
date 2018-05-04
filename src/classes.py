@@ -62,15 +62,18 @@ class Player():
 
     # check hands to see if any are valid, count busts
     for hand in self.hands:
-      if hand.state['Context'] != 'Bust':
-        context = "Valid"
+      if(hand.state['Context'] == 'Blackjack'):
+        context = "Blackjack"
+        break
+      elif(hand.state['Context'] != 'Bust'):
+        context = "Open"
         break
       else:
         busts += 1
     
     # if Player surrendered, or all hands are Bust, set to invalid
-    if(self.state['Context'] == 'Surrendered' or len(self.hands) == busts):
-      context = "Invalid"
+    if(len(self.hands) == busts):
+      context = "Bust"
 
     self.set_state(False, context)
 
@@ -83,7 +86,7 @@ class Player():
 
   def __str__(self):
     playerString = ""
-    playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\nActive: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands), self.state['Active'])
+    playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\nActive: {}\nContext: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands), self.state['Active'], self.state['Context'])
 
     for hand in self.hands:
       playerString += "Hand {} value: {}\n".format(hand.num, hand.value)
@@ -245,6 +248,7 @@ class Option():
 class Game():
   def __init__(self):
     self.players = None
+    self.roundPlayers = None
     self.dealer = None
     self.deck = None
     self.play = True
@@ -380,6 +384,7 @@ class Game():
       # concatenate as new tuple to allow for incremental tuple to be returned with all players
       players += (Player(name, x),)
 
+    # assign players to Game object
     return players
 
   def bet_tracker_setup(self):
@@ -403,40 +408,53 @@ class Game():
   def process_results(self):
     results = {'Winners':[], 'Losers':[], 'Ties':[]}
 
-    if(self.dealer.state['Context'] == 'Invalid'):
+    if(self.dealer.state['Context'] == 'Bust'):
     # if dealer bust, pay out everyone with valid hands
       for player in self.players:
-        if(player.state['Context'] == 'Valid'):
+        if(player.state['Context'] != 'Bust' and player.state['Context'] != 'Surrendered'):
           results['Winners'].append(player)
         else:
           results['Losers'].append(player)
 
     # else dealer not bust, compare hands
     else:
-      dealerHand = self.dealer.hands[0].value
-      for player in self.players:
-        playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
-        if(player.state['Context'] != 'Bust'):
-          playerHandCount = len(player.hands)
-          for hand in player.hands:
-            if(hand.state['Context'] != 'Bust'):
-              if(hand.value > dealerHand):
-                playerHandStates['Wins'] += 1
-              elif(hand.value == dealerHand):
-                playerHandStates['Ties'] += 1
-              elif(hand.value < dealerHand):
-                playerHandStates['Losses'] += 1
-        else:
-          results['Losers'].append(player)
+      print("Dealer not bust... process comparisons...")
+      #for player in self.players:
+      #  if(player.state['Context'] == 'Valid'): # if Player is valid
+      #    playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
+      #    for hand in player.hands: # iterate through all hands
+      #      if(hand.state['Context'] != 'Bust'):
+      #  else:
 
-        if(playerHandStates['Wins'] > 0):
-          results['Winners'].append(player)
-          break
-        elif(playerHandStates['Ties'] > 0):
-          results['Ties'].append(player)
-          break
-        else:
-          results['Losers'].append(player)
+
+
+
+
+
+      #dealerHand = self.dealer.hands[0].value
+      #for player in self.players:
+      #  playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
+      #  if(player.state['Context'] != 'Bust'):
+      #    playerHandCount = len(player.hands)
+      #    for hand in player.hands:
+      #      if(hand.state['Context'] != 'Bust'):
+      #        if(hand.value > dealerHand):
+      #          playerHandStates['Wins'] += 1
+      #        elif(hand.value == dealerHand):
+      #          playerHandStates['Ties'] += 1
+      #        elif(hand.value < dealerHand):
+      #          playerHandStates['Losses'] += 1
+      #  else:
+      #    results['Losers'].append(player)
+
+      #  if(playerHandStates['Wins'] > 0):
+      #    results['Winners'].append(player)
+      #    break
+      #  elif(playerHandStates['Ties'] > 0):
+      #    results['Ties'].append(player)
+      #    break
+      #  else:
+      #    results['Losers'].append(player)
 
     # print results
     for player in results['Winners']:
@@ -550,11 +568,19 @@ class Game():
     # code
 
   def check_players_money(self):
+    play = False
     for player in self.players:
       if(player.cash >= self.minBet):
-        return True
-    print("Sorry, no one has enough money to buy in for the minimum ${} bet, game over!".format(self.minBet))
-    return False
+        play = True
+      else:
+        player.states['Active'] = False
+        player.states['Context'] = 'Poor'
+
+    if(play):
+      return True
+    else:
+      print("Sorry, no one has enough money to buy in for the minimum ${} bet, game over!".format(self.minBet))
+      return False
   
   def reset(self):
     # wipe Player bets to 0, empty Hands, reset states
