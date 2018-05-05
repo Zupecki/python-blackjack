@@ -65,6 +65,9 @@ class Player():
       if(hand.state['Context'] == 'Blackjack'):
         context = "Blackjack"
         break
+      elif(hand.state['Context'] == 'Surrendered'):
+        context = "Surrendered"
+        break
       elif(hand.state['Context'] != 'Bust'):
         context = "Open"
         break
@@ -411,20 +414,36 @@ class Game():
     if(self.dealer.state['Context'] == 'Bust'):
     # if dealer bust, pay out everyone with valid hands
       for player in self.players:
-        if(player.state['Context'] != 'Bust' and player.state['Context'] != 'Surrendered'):
+        if(player.state['Context'] == 'Open' or player.state['Context'] == 'Blackjack'):
           results['Winners'].append(player)
-        else:
+        else: # Bust or Surrendered
           results['Losers'].append(player)
 
     # else dealer not bust, compare hands
     else:
       print("Dealer not bust... process comparisons...")
-      #for player in self.players:
-      #  if(player.state['Context'] == 'Valid'): # if Player is valid
-      #    playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
-      #    for hand in player.hands: # iterate through all hands
-      #      if(hand.state['Context'] != 'Bust'):
-      #  else:
+
+      for player in self.players:
+        if(player.state['Context'] == 'Open' or player.state['Context'] == 'Blackjack'): # if Player is valid
+          playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
+          dealerHandValue = self.dealer.hands[0].value
+          for hand in player.hands: # iterate through all hands
+            if(hand.value > dealerHandValue):
+              playerHandStates['Wins'] += 1
+            if(hand.value == dealerHandValue):
+              playerHandStates['Ties'] += 1
+            if(hand.value < dealerHandValue):
+              playerHandStates['Losses'] += 1
+          if(playerHandStates['Wins'] > 0):
+            results['Winners'].append(player)
+          elif(playerHandStates['Ties'] > 0):
+            results['Ties'].append(player)
+          else:
+            results['Losers'].append(player)
+        else:
+          results['Losers'].append(player)
+              
+      
 
 
 
@@ -458,17 +477,38 @@ class Game():
 
     # print results
     for player in results['Winners']:
-      player.cash += player.bet*2
-      print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, player.bet*2))
+      winnings = 0
+      if(player.state['Context'] == 'Open'):
+        winnings = player.bet
+      elif(player.state['Context'] == 'Blackjack'):
+        winnings = player.bet*1.5
+
+      # update Player cash
+      player.cash += (player.bet + winnings)
+
+      # print
+      print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, winnings))
       print("You now have ${}!".format(player.cash))
 
     for player in results['Ties']:
       player.cash += player.bet
-      print("Player {} ({}), you tied with the dealer and receive your ${} back!".format(player.num, player.name, player.bet*2))
+      print("Player {} ({}), you tied with the dealer and receive your ${} back!".format(player.num, player.name, player.bet))
       print("You now have ${}!".format(player.cash))
 
     for player in results['Losers']:
-      print("Sorry Player {} ({}), you were beaten by the dealer and lost ${}!".format(player.num, player.name, player.bet))
+      message = ""
+      losses = 0
+      if(player.state['Context'] == 'Bust'):
+        message = "Bust"
+        losses = player.bet
+      elif(player.state['Context'] == 'Surrendered'):
+        message = "Surrendered"
+        losses = player.bet/2
+      elif(player.state['Context'] == 'Open'):
+        message = "Lower Hand Value"
+        losses = player.bet
+
+      print("Sorry Player {} ({}), you were beaten by the dealer ({}) and lost ${}!".format(player.num, player.name, message, player.bet))
 
     # print Dealer final state for test purposes
     print("Dealer states:\nDealer Active - {}\nDealer Context - {}\nHand Active - {}\nHand Context - {}\n".format(self.dealer.state['Active'], self.dealer.state['Context'], self.dealer.hands[0].state['Active'], self.dealer.hands[0].state['Context']))
@@ -545,6 +585,7 @@ class Game():
     player.cash += player.bet
 
     player.set_state(False, 'Surrendered')
+    hand.set_state(False, 'Surrendered')
 
     print("{} surrenders Hand {} and takes back half their wager of {}, totalling {}.".format(player.name, hand.num, player.bet*2, player.bet))
 
