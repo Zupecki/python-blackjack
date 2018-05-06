@@ -77,7 +77,8 @@ while game.play != False:
 	print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))
 
 		# clean up code
-		# bug sometimes player results not printing?
+		# bug; if option number selected outside range, crash
+		# "Surrendered" in end_state won't work because there may be multiple hands
 		# add bust and blackjack reporting between Player moves
 		# surrender not skipping player (not ending turn)
 		# FORMATTING - MAKE PRETTY

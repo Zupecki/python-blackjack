@@ -60,25 +60,25 @@ class Player():
     context = ""
     busts = 0
 
-    # check hands to see if any are valid, count busts
-    for hand in self.hands:
-      if(hand.state['Context'] == 'Blackjack'):
-        context = "Blackjack"
-        break
-      elif(hand.state['Context'] == 'Surrendered'):
-        context = "Surrendered"
-        break
-      elif(hand.state['Context'] != 'Bust'):
-        context = "Open"
-        break
-      else:
-        busts += 1
-    
-    # if Player surrendered, or all hands are Bust, set to invalid
-    if(len(self.hands) == busts):
-      context = "Bust"
+    # if Surrendered, leave as is, else hoist best Hand state to Player state
+    if(self.state['Context'] != 'Surrendered'):
 
-    self.set_state(False, context)
+      # check hands to see if any are valid, count busts
+      for hand in self.hands:
+        if(hand.state['Context'] == 'Blackjack'):
+          context = "Blackjack"
+          break
+        elif(hand.state['Context'] != 'Bust'):
+          context = "Open"
+          break
+        else:
+          busts += 1
+      
+      # if Player's hands are Bust, set to Bust
+      if(len(self.hands) == busts):
+        context = "Bust"
+
+      self.set_state(False, context)
 
   def get_name(self):
     return self.name
@@ -411,8 +411,8 @@ class Game():
   def process_results(self):
     results = {'Winners':[], 'Losers':[], 'Ties':[]}
 
-    if(self.dealer.state['Context'] == 'Bust'):
     # if dealer bust, pay out everyone with valid hands
+    if(self.dealer.state['Context'] == 'Bust'):
       for player in self.players:
         if(player.state['Context'] == 'Open' or player.state['Context'] == 'Blackjack'):
           results['Winners'].append(player)
@@ -422,58 +422,36 @@ class Game():
     # else dealer not bust, compare hands
     else:
       print("Dealer not bust... process comparisons...")
+      dealerHandValue = self.dealer.hands[0].value
 
       for player in self.players:
-        if(player.state['Context'] == 'Open' or player.state['Context'] == 'Blackjack'): # if Player is valid
-          playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
-          dealerHandValue = self.dealer.hands[0].value
-          for hand in player.hands: # iterate through all hands
-            if(hand.value > dealerHandValue):
-              playerHandStates['Wins'] += 1
-            if(hand.value == dealerHandValue):
-              playerHandStates['Ties'] += 1
-            if(hand.value < dealerHandValue):
-              playerHandStates['Losses'] += 1
-          if(playerHandStates['Wins'] > 0):
+        # if Player has Blackjack
+        if(player.state['Context'] == 'Blackjack'):
+          if(dealerHandValue < 21):
             results['Winners'].append(player)
-          elif(playerHandStates['Ties'] > 0):
-            results['Ties'].append(player)
+            break
           else:
-            results['Losers'].append(player)
-        else:
+            results['Ties'].append(player)
+            break
+
+        # if Player not Bust, Surrendered or Blackjack, compare to dealer
+        elif(player.state['Context'] == 'Open'):
+          bestHand = 0
+          for hand in player.hands: # iterate through all hands, find best valid hand
+            if(hand.value > bestHand and hand.value <= 21):
+              bestHand = hand.value
+
+            # compare best hand to dealer hand and assign player to appropriate list
+            if(bestHand > dealerHandValue):
+              results['Winners'].append(player)
+            elif(bestHand == dealerHandValue):
+              results['Ties'].append(player)
+            elif(bestHand < dealerHandValue):
+              results['Losers'].append(player)
+       
+        # straight up losers
+        elif(player.state['Context'] == 'Bust' or player.state['Context'] == 'Surrendered'):
           results['Losers'].append(player)
-              
-      
-
-
-
-
-
-
-      #dealerHand = self.dealer.hands[0].value
-      #for player in self.players:
-      #  playerHandStates = {'Wins': 0, 'Ties': 0, 'Losses': 0}
-      #  if(player.state['Context'] != 'Bust'):
-      #    playerHandCount = len(player.hands)
-      #    for hand in player.hands:
-      #      if(hand.state['Context'] != 'Bust'):
-      #        if(hand.value > dealerHand):
-      #          playerHandStates['Wins'] += 1
-      #        elif(hand.value == dealerHand):
-      #          playerHandStates['Ties'] += 1
-      #        elif(hand.value < dealerHand):
-      #          playerHandStates['Losses'] += 1
-      #  else:
-      #    results['Losers'].append(player)
-
-      #  if(playerHandStates['Wins'] > 0):
-      #    results['Winners'].append(player)
-      #    break
-      #  elif(playerHandStates['Ties'] > 0):
-      #    results['Ties'].append(player)
-      #    break
-      #  else:
-      #    results['Losers'].append(player)
 
     # print results
     for player in results['Winners']:
