@@ -59,8 +59,6 @@ while game.play != False:
 
 				# after Player has acted on all Hands, check if still in the game
 				player.end_state()
-			else:
-				print("Sorry Player {} ({}), you only have ${} and the minimum bet is $100")
 
 		# bail out of game
 		game.playerRound = False
@@ -78,7 +76,6 @@ while game.play != False:
 
 		# clean up code
 		# bug; if option number selected outside range, crash
-		# "Surrendered" in end_state won't work because there may be multiple hands
 		# add bust and blackjack reporting between Player moves
 		# surrender not skipping player (not ending turn)
 		# FORMATTING - MAKE PRETTY
@@ -104,7 +101,8 @@ while game.play != False:
 
 	game.print_bet_tracker()
 
-	game.process_results()
+	# process game results and then print
+	game.print_results(game.process_results())
 
 	# play again? (needs to moved back up, or could create brand new game and import Players)
 	print("Would you like to play another round, Y/N?")

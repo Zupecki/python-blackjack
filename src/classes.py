@@ -421,7 +421,6 @@ class Game():
 
     # else dealer not bust, compare hands
     else:
-      print("Dealer not bust... process comparisons...")
       dealerHandValue = self.dealer.hands[0].value
 
       for player in self.players:
@@ -453,7 +452,10 @@ class Game():
         elif(player.state['Context'] == 'Bust' or player.state['Context'] == 'Surrendered'):
           results['Losers'].append(player)
 
-    # print results
+    return results
+
+  def print_results(self, results):
+
     for player in results['Winners']:
       winnings = 0
       if(player.state['Context'] == 'Open'):
@@ -592,8 +594,8 @@ class Game():
       if(player.cash >= self.minBet):
         play = True
       else:
-        player.states['Active'] = False
-        player.states['Context'] = 'Poor'
+        player.state['Active'] = False
+        player.state['Context'] = 'Poor'
 
     if(play):
       return True
