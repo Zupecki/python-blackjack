@@ -28,37 +28,32 @@ while game.play != False:
 	# Game loop - CLEAN UP!
 	while game.playerRound != False:
 		for player in game.players:
-			turn = True
-			# print Player details here - name, cash, hand info?
-			while(turn == True):
-				for hand in player.hands:
-					# allow player to keep hitting hand while hand is Active
-					while hand.state['Active'] == True:
-						print("\n-- ROUND 1 --\nDealers Hand:\n")
-						game.dealer.show_hand(game.dealer.hands[0])
-
-						print("\nPlayer {} ({}) - what would you like to do with Hand {}?\n".format(player.num, player.name, hand.num))
-						player.show_hand(hand)
-						game.generate_options(hand)
-						game.print_options()
-
-						choice = input()
-						option = game.menu_select(choice) # return correct option method
-
-						# // redundant code, leaving for record
-						#optionArgs = blackjack.get_arg_names(option)
-
-						# call option and pass in player and hand objects
-						option(player, hand)
-
-					# check if Player still has any active Hand (maybe new Hand was created via split)
-					turn = False
+			if(player.state['Active'] == True):
+				turn = True
+				# print Player details here - name, cash, hand info?
+				while(turn == True):
 					for hand in player.hands:
-						if(hand.state['Active'] == True):
-							turn = True
+						# allow player to keep hitting hand while hand is Active
+						while hand.state['Active'] == True:
+							options = game.turn_render(player, hand)
 
-				# after Player has acted on all Hands, check if still in the game
-				player.end_state()
+							choice = blackjack.num_range_input_validation(int, 1, len(options), "What would you like to do with Hand {}?".format(hand.num), "selection must be between option range")
+							option = game.menu_select(choice, options) # return correct option method
+
+							# // redundant code, leaving for record
+							#optionArgs = blackjack.get_arg_names(option)
+
+							# call option and pass in player and hand objects
+							option(player, hand)
+
+						# check if Player still has any active Hand (maybe new Hand was created via split)
+						turn = False
+						for hand in player.hands:
+							if(hand.state['Active'] == True):
+								turn = True
+
+					# after Player has acted on all Hands, check if still in the game
+					player.end_state()
 
 		# bail out of game
 		game.playerRound = False
@@ -75,10 +70,9 @@ while game.play != False:
 	print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))
 
 		# clean up code
-		# bug; if option number selected outside range, crash
 		# add bust and blackjack reporting between Player moves
-		# surrender not skipping player (not ending turn)
-		# FORMATTING - MAKE PRETTY
+		# bug; seems sometimes second Player not reported at the end
+		# FORMATTING - MAKE PRETTY... ALMOST THERE. Need to wipe each print
 
 		# should there be a player_turn function to take in each Player, cycle through Hands etc?
 		# should a hand keep track of options for itself?
