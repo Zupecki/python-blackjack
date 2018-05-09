@@ -659,13 +659,16 @@ class Game():
     spaces = ""
 
     stateString = "\nPython Blackjack - Round {}".format(self.roundCount)
-    stateString += "\n--------------------------------------------------\n"
+    stateString += "\n----------------------------------------------------\n"
+    stateString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}".format(playerNum, playerName, player.cash, player.bet)
+    stateString += "\n----------------------------------------------------\n"
+    stateString += "HANDS:\n"
 
     dealersHandString = "Dealer's Hand - {}".format(dealerHand.get_value())
 
     spaces = self.calc_spaces(dealersHandString)
 
-    stateString += "{}{}Player {}'s ({}) Hand {} - {}\n".format(dealersHandString, spaces, playerNum, playerName, handNum, handValue)
+    stateString += "{}{}Hand {} - {}\n".format(dealersHandString, spaces, handNum, handValue)
 
     # FORMAT CARD STRING ROWS
     rowCount = 0
