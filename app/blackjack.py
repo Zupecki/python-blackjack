@@ -72,6 +72,7 @@ while game.play != False:
 		# clean up code
 		# add bust and blackjack reporting between Player moves
 		# bug; seems sometimes second Player not reported at the end
+		# PLAYER 2 of 4 etc
 		# FORMATTING - MAKE PRETTY... ALMOST THERE. Need to wipe each print
 
 		# should there be a player_turn function to take in each Player, cycle through Hands etc?

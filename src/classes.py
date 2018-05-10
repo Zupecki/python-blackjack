@@ -660,7 +660,7 @@ class Game():
 
     stateString = "\nPython Blackjack - Round {}".format(self.roundCount)
     stateString += "\n----------------------------------------------------\n"
-    stateString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}".format(playerNum, playerName, player.cash, player.bet)
+    stateString += "PLAYER {} of {}:\nName: {}\nCash: {}\nBet: {}".format(playerNum, len(self.players), playerName, player.cash, player.bet)
     stateString += "\n----------------------------------------------------\n"
     stateString += "HANDS:\n"
 
