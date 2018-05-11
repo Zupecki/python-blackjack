@@ -4,6 +4,8 @@
 # A Deck has Cards or is Empty
 from random import shuffle
 from inspect import getargspec as argnames
+from time import time, sleep
+import sys
 
 # misc global functions - probably best in own file
 
@@ -13,6 +15,19 @@ def num_to_word(num):
   6:"Six",7:"Seven",8:"Eight",9:"Nine",10:"Ten"}
 
   return ref[num]
+
+def print_slow_and_wait(inputString, printDelay, wait):
+  printString = ""
+
+  for char in inputString:
+    printString += char
+    sys.stdout.write(printString+"\r")
+    sys.stdout.flush()
+    #print(printString)
+    sleep(printDelay)
+  print("")
+
+  sleep(wait)
 
 def num_range_input_validation(inputType, minimum, maximum, intentMessage, rangeMessage):
 
@@ -46,6 +61,7 @@ class Player():
     self.cash = 0
     self.bet = 0
     self.turns = 0
+    self.bestHand = 0
 
   def show_hand(self, hand):
 
@@ -67,6 +83,7 @@ class Player():
       for hand in self.hands:
         if(hand.state['Context'] == 'Blackjack'):
           context = "Blackjack"
+          print_slow_and_wait("BLACKJACK!", 0.06, 2)
           break
         elif(hand.state['Context'] != 'Bust'):
           context = "Open"
@@ -76,6 +93,7 @@ class Player():
       
       # if Player's hands are Bust, set to Bust
       if(len(self.hands) == busts):
+        print_slow_and_wait("BUSTED!", 0.06, 2)
         context = "Bust"
 
       self.set_state(False, context)
@@ -130,7 +148,7 @@ class Dealer(Player):
     hand.recalculate_value()
     hand.check_hand()
 
-    # print("{} - removed from deck and dealt to {}".format(card, player.name)
+    return card
 
 class Hand():
   def __init__(self):
@@ -285,10 +303,11 @@ class Game():
     self.dealStyle = 'London'
     self.playerRound = True
     self.roundCount = 1
+    self.lastAction = ""
 
   def setup(self):
     # welcome message and Player creation
-    print("Welcome to Python Blackjack, also known as Twenty One!")
+    print_slow_and_wait("Welcome to Python Blackjack in the command line!", 0.06, 0.0)
 
     # Players
     self.players = self.create_players()
@@ -347,8 +366,14 @@ class Game():
     # flip face down card
     hand.cards['allCards'][1].flip_card()
 
+    print("")
+    print_slow_and_wait("Dealer flips second card and shows hand...", 0.06, 2)
+
+    self.dealer.show_hand(self.dealer.hands[0])
+
     while(hand.value < 17 and hand.soft == True):
-      self.dealer.deal_card(self.dealer, hand, self.deck, self.dealStyle)
+      card = self.dealer.deal_card(self.dealer, hand, self.deck, self.dealStyle)
+      print_slow_and_wait("Dealer hits and receives {}".format(card), 0.06, 1)
 
     # check for soft 17
     # if(len(hand['aces']) > 0):
@@ -461,13 +486,16 @@ class Game():
             if(hand.value > bestHand and hand.value <= 21):
               bestHand = hand.value
 
-            # compare best hand to dealer hand and assign player to appropriate list
-            if(bestHand > dealerHandValue):
-              results['Winners'].append(player)
-            elif(bestHand == dealerHandValue):
-              results['Ties'].append(player)
-            elif(bestHand < dealerHandValue):
-              results['Losers'].append(player)
+          # update Player best hand
+          player.bestHand = bestHand
+
+          # compare best hand to dealer hand and assign player to appropriate list
+          if(bestHand > dealerHandValue):
+            results['Winners'].append(player)
+          elif(bestHand == dealerHandValue):
+            results['Ties'].append(player)
+          elif(bestHand < dealerHandValue):
+            results['Losers'].append(player)
        
         # straight up losers
         elif(player.state['Context'] == 'Bust' or player.state['Context'] == 'Surrendered'):
@@ -488,12 +516,14 @@ class Game():
       player.cash += (player.bet + winnings)
 
       # print
-      print("Congratulations Player {} ({}), you beat the dealer and won ${}!".format(player.num, player.name, winnings))
+      print("\nCongratulations Player {} ({}), you beat the dealer!".format(player.num, player.name))
+      print("Best hand value: {}\nWinnings: ${}".format(player.bestHand, winnings))
       print("You now have ${}!".format(player.cash))
 
     for player in results['Ties']:
       player.cash += player.bet
-      print("Player {} ({}), you tied with the dealer and receive your ${} back!".format(player.num, player.name, player.bet))
+      print("\nPlayer {} ({}), you tied with the dealer!".format(player.num, player.name))
+      print("Tied hand value: {}\nYou receive back your bet of ${}".format(player.bestHand, player.bet))
       print("You now have ${}!".format(player.cash))
 
     for player in results['Losers']:
@@ -509,10 +539,12 @@ class Game():
         message = "Lower Hand Value"
         losses = player.bet
 
-      print("Sorry Player {} ({}), you were beaten by the dealer ({}) and lost ${}!".format(player.num, player.name, message, player.bet))
+      print("\nSorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name))
+      print("Reason: {}\nYou lost ${}!".format(message, player.bet))
+      print("You now have ${}!".format(player.cash))
 
     # print Dealer final state for test purposes
-    print("Dealer states:\nDealer Active - {}\nDealer Context - {}\nHand Active - {}\nHand Context - {}\n".format(self.dealer.state['Active'], self.dealer.state['Context'], self.dealer.hands[0].state['Active'], self.dealer.hands[0].state['Context']))
+    #print("Dealer states:\nDealer Active - {}\nDealer Context - {}\nHand Active - {}\nHand Context - {}\n".format(self.dealer.state['Active'], self.dealer.state['Context'], self.dealer.hands[0].state['Active'], self.dealer.hands[0].state['Context']))
 
   def create_deck(self):
     deck = Deck()
@@ -523,14 +555,25 @@ class Game():
 
 # Player passes and holds Hand as is
   def stand(self, player, hand):
-    print("{} stands with his/her cards on Hand {}.".format(player.name, hand.num))
+    message = "{} stands with their cards on Hand {}.".format(player.name, hand.num)
+    print_slow_and_wait(message, 0.03, 2)
 
     hand.set_state(False, 'Stand')
 
+    # update last action
+    self.lastAction = message
+
 # Player requests extra card
   def hit(self, player, hand):
-    print("{} hits and receives a new card for Hand {}.".format(player.name, hand.num))
-    self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
+    # deal card
+    card = self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
+
+    # print output
+    message = "{} hits and receives {} for Hand {}.".format(player.name, card, hand.num)
+    print_slow_and_wait(message, 0.03, 2)
+
+    # update last action
+    self.lastAction = message
 
 # if Player has enough cash to double bet, double bet and
 # set state double to True
@@ -539,8 +582,6 @@ class Game():
       player.cash -= player.bet
       player.bet *= 2
 
-      print("{} doubles their bet to {} and receives a new card for Hand {}.".format(player.name, player.bet, hand.num))
-
       # change player state
       hand.set_state(False, 'Double')
 
@@ -548,7 +589,15 @@ class Game():
       self.bets['Player {}'.format(player.num)] = player.bet
 
       # deal card
-      self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
+      card = self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
+
+      # print output
+      message = "{} doubles their bet to {} and receives {} for Hand {}.".format(player.name, player.bet, card, hand.num)
+      print_slow_and_wait(message, 0.03, 2)
+
+      # update last action
+      self.lastAction = message
+
 
   # if Player has double cards, pass in Hand with doubles
   # allow split to add new hand and deal extra card to each Hand
@@ -557,9 +606,6 @@ class Game():
     
     # assign Hand number - current amount +1
     newHand.num = len(player.hands) + 1
-
-    # print output
-    print("{} splits their hands and receives a new card for Hand {} and Hand {}.".format(player.name, hand.num, newHand.num))
 
     # check for card type
     if(len(hand.cards['allCards']) == 2):
@@ -574,21 +620,35 @@ class Game():
     newHand.cards[cardType].append(card)
 
     # deal a new card to each Hand
-    self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
-    self.dealer.deal_card(player, newHand, self.deck, self.dealStyle)
+    cardOne = self.dealer.deal_card(player, hand, self.deck, self.dealStyle)
+    cardTwo = self.dealer.deal_card(player, newHand, self.deck, self.dealStyle)
    
     # add Hand to player's hands
     player.hands += (newHand, )
 
+    # print output
+    message = "{} splits their hands and receives {} for Hand {} and {} for Hand {}.".format(player.name, cardOne, hand.num, cardTwo, newHand.num)
+    print_slow_and_wait(message, 0.03, 2)
+
+    # update last action
+    self.lastAction = message
+
   # forfeit half of bet and drop out, only possible on first two cards
   def surrender(self, player, hand):
+    # print output
+    message = "{} surrenders and loses ${} of their ${} bet.".format(player.name, int(player.bet/2), player.bet)
+    print_slow_and_wait(message, 0.03, 2)
+
+    # update last action
+    self.lastAction = message
+
+    # edit bet and cash
     player.bet /= 2
     player.cash += player.bet
 
+    # set states
     player.set_state(False, 'Surrendered')
     hand.set_state(False, 'Surrendered')
-
-    print("{} surrenders Hand {} and takes back half their wager of {}, totalling {}.".format(player.name, hand.num, player.bet*2, player.bet))
 
   def print_options(self, options):
     print("OPTIONS:\n")
@@ -596,8 +656,21 @@ class Game():
       print(option)
 
   def end(self):
-    return None
-    # code
+    print("\nWould you like to play another round, Y/N?")
+
+    while True:
+      choice = input().upper()
+
+      if(choice == 'Y' or choice == 'N'):
+        if(choice == 'Y'):
+          self.reset()
+          break
+        elif(choice == 'N'):
+          self.play = False
+          break
+      else:
+        print("Sorry, must be Y or N, try again.")
+        continue
 
   def check_players_money(self):
     play = False
@@ -633,6 +706,9 @@ class Game():
     # increment round counter
     self.roundCount += 1
 
+    # wipe last action
+    self.lastAction = ""
+
   def print_players(self):
     for player in self.players:
       print(player)
@@ -655,20 +731,41 @@ class Game():
     playerName = player.get_name()
     handValue = playerHand.get_value()
     handNum = playerHand.get_num()
-    options = self.generate_options(playerHand)
-    spaces = ""
+    stateStrings = [[],[]] # column 1, column 2
 
-    stateString = "\nPython Blackjack - Round {}".format(self.roundCount)
-    stateString += "\n----------------------------------------------------\n"
-    stateString += "PLAYER {} of {}:\nName: {}\nCash: {}\nBet: {}".format(playerNum, len(self.players), playerName, player.cash, player.bet)
-    stateString += "\n----------------------------------------------------\n"
-    stateString += "HANDS:\n"
+    stateStrings[0].append("\nPython Blackjack - Round {}".format(self.roundCount))
+    stateStrings[1].append(None)
 
-    dealersHandString = "Dealer's Hand - {}".format(dealerHand.get_value())
+    if(len(self.lastAction) > 0):
+      stateStrings[0].append("\nLAST ACTION:")
+      stateStrings[1].append(None)
 
-    spaces = self.calc_spaces(dealersHandString)
+      stateStrings[0].append("{}".format(self.lastAction))
+      stateStrings[1].append(None)
 
-    stateString += "{}{}Hand {} - {}\n".format(dealersHandString, spaces, handNum, handValue)
+    stateStrings[0].append("----------------------------------------------------")
+    stateStrings[1].append(None)
+
+    stateStrings[0].append("PLAYER {} of {}:\n".format(playerNum, len(self.players)))
+    stateStrings[1].append(None)
+
+    stateStrings[0].append("Name: {}".format(playerName))
+    stateStrings[1].append("Cash: {}".format(player.cash))
+
+    stateStrings[0].append("Hands: {}".format(len(player.hands)))
+    stateStrings[1].append("Bet: {}".format(player.bet))
+
+    stateStrings[0].append("----------------------------------------------------")
+    stateStrings[1].append(None)
+    
+    stateStrings[0].append("HANDS:\n")
+    stateStrings[1].append(None)
+
+    stateStrings[0].append("Dealer's Hand -")
+    stateStrings[1].append("Player's Hand {} of {} -".format(handNum, len(player.hands)))
+
+    stateStrings[0].append("Value: {}".format(dealerHand.get_value()))
+    stateStrings[1].append("Value: {}".format(handValue))
 
     # FORMAT CARD STRING ROWS
     rowCount = 0
@@ -676,19 +773,29 @@ class Game():
     # calculate card rows needed based on Player cards (Dealer always has only 2 Cards)
     rowCount = len(playerHand.cards['allCards'])
 
-    # append empty row arrays for cards and add cards or spaces
+    # add card strings to array
     for x in range(0, rowCount):
       if(x < 2): # add Dealer card if rows less than 3
-        stateString += dealerHand.cards['allCards'][x].get_string()
-        stateString += self.calc_spaces(dealerHand.cards['allCards'][x].get_string())
-      else: # else add spaces
-        stateString += self.calc_spaces("")
+        stateStrings[0].append(dealerHand.cards['allCards'][x].get_string())
+      else:
+        stateStrings[0].append("")
 
       # always add Player Cards
-      stateString += playerHand.cards['allCards'][x].get_string()
-      stateString += "\n"
+      stateStrings[1].append(playerHand.cards['allCards'][x].get_string())
 
-    print(stateString)
+    stateStrings[0].append("----------------------------------------------------")
+    stateStrings[1].append(None)
+
+    # PRINT IT
+    for x in range(0, len(stateStrings[0])):
+      if(stateStrings[1][x] == None):
+        print(stateStrings[0][x])
+      else:
+        spaces = self.calc_spaces(stateStrings[0][x])
+        print(stateStrings[0][x]+spaces+stateStrings[1][x])
+
+    # OPTIONS
+    options = self.generate_options(playerHand)
     self.print_options(options)
 
     print("\n{}, what would you like to do with Hand {}?".format(playerName, handNum))
@@ -700,7 +807,3 @@ class Game():
     for x in range(len(stringInput), 29):
       string += " "
     return string
-
-  def render_screen(self, state):
-    print("{}\r".format(state))
-    return None

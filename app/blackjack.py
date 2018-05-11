@@ -8,7 +8,26 @@ sys.path.append('..')
 
 import src.classes as blackjack
 
-# Game logic
+def test_output(game):
+	# print player hand states
+	for player in game.players:
+		count = 1
+		print("{}'s Hand states are:\n".format(player.name))
+		for hand in player.hands:
+		  print("Hand {}: {}".format(count, hand.state))
+		  count += 1
+
+	print("\n\n")
+
+	for player in game.players:
+		print(player)
+
+	print("\n\n")
+
+	game.print_bet_tracker()
+
+
+# GAME LOGIC
 
 # Build game object, then set it up with Players, Dealer and Deck
 game = blackjack.Game()
@@ -25,7 +44,7 @@ while game.play != False:
 	# deal 2 cards to each player, including dealer
 	game.initial_deal()
 
-	# Game loop - CLEAN UP!
+	# CORE LOOP
 	while game.playerRound != False:
 		for player in game.players:
 			if(player.state['Active'] == True):
@@ -37,11 +56,9 @@ while game.play != False:
 						while hand.state['Active'] == True:
 							options = game.turn_render(player, hand)
 
+							# get selection, then retrieve option method
 							choice = blackjack.num_range_input_validation(int, 1, len(options), "What would you like to do with Hand {}?".format(hand.num), "selection must be between option range")
 							option = game.menu_select(choice, options) # return correct option method
-
-							# // redundant code, leaving for record
-							#optionArgs = blackjack.get_arg_names(option)
 
 							# call option and pass in player and hand objects
 							option(player, hand)
@@ -65,63 +82,27 @@ while game.play != False:
 	game.dealer.end_state()
 
 	# show dealers hand
-	print("\n-------\nDealers Hand: ")
+	print("----------------------------------------------------")
+	print("ROUND RESULTS:\n")
+	print("Dealer's final hand -")
+	print("Value: {}".format(game.dealer.hands[0].value))
 	game.dealer.show_hand(game.dealer.hands[0])
-	print("Dealers Hand worth: {}".format(game.dealer.hands[0].value))
+	print("")
 
 		# clean up code
-		# add bust and blackjack reporting between Player moves
 		# bug; seems sometimes second Player not reported at the end
-		# PLAYER 2 of 4 etc
 		# FORMATTING - MAKE PRETTY... ALMOST THERE. Need to wipe each print
+		# BLACKJACK STATE persisting between rounds. Instant blackjack not showing player.
+		# sometimes second player being skipped in results/winnings
 
-		# should there be a player_turn function to take in each Player, cycle through Hands etc?
-		# should a hand keep track of options for itself?
-		# should options be persistent and then dynamically pulled for each hand?
-
-	# print player hand states
-	for player in game.players:
-		count = 1
-		print("{}'s Hand states are:\n".format(player.name))
-		for hand in player.hands:
-		  print("Hand {}: {}".format(count, hand.state))
-		  count += 1
-
-	print("\n\n")
-
-	for player in game.players:
-		print(player)
-
-	print("\n\n")
-
-	game.print_bet_tracker()
+	# test printing
+	#test_output(game)
 
 	# process game results and then print
 	game.print_results(game.process_results())
 
-	# play again? (needs to moved back up, or could create brand new game and import Players)
-	print("Would you like to play another round, Y/N?")
+	# play again?
+	game.end()
 
-	while True:
-		choice = input().upper()
 
-		if(choice == 'Y' or choice == 'N'):
-			if(choice == 'Y'):
-				game.reset()
-				break
-			elif(choice == 'N'):
-				game.play = False
-				break
-		else:
-			print("Sorry, must be Y or N, try again.")
-			continue
 
-# Player enters name - how many players? **kwargs? (["Michael": 1, "Jason": 2"]) etc? Or **args? (["Michael, Jason"]) etc?
-# Cards created
-# Cards shuffled
-# Cards dealt
-# Continue to calculate hand for every Card dealt
-# If either exceeds 21, other Player wins
-# If either Player or Dealer hit 21, they win. Dealer wins if both are 21
-
-##
