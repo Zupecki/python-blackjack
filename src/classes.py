@@ -83,7 +83,7 @@ class Player():
       for hand in self.hands:
         if(hand.state['Context'] == 'Blackjack'):
           context = "Blackjack"
-          print_slow_and_wait("BLACKJACK!", 0.06, 2)
+          print_slow_and_wait("Congratulations Player {} ({}) - BLACKJACK!".format(self.num, self.name), 0.06, 2)
           break
         elif(hand.state['Context'] != 'Bust'):
           context = "Open"
@@ -146,7 +146,7 @@ class Dealer(Player):
 
     # Update hand stats, assign bust or not
     hand.recalculate_value()
-    hand.check_hand()
+    hand.check_hand(player)
 
     return card
 
@@ -185,8 +185,9 @@ class Hand():
         break
     
   # Check if hand is Blackjack or Bust, otherwise leave untouched
-  def check_hand(self):
+  def check_hand(self, player):
     if(self.value == 21):
+      #print_slow_and_wait("Congratulations Player {} ({}) - you hit Blackjack!".format(player.num, player.name), 0.06, 2)
       self.set_state(False, 'Blackjack')
     elif self.value > 21:
       self.set_state(False, 'Bust')
@@ -293,7 +294,6 @@ class Option():
 class Game():
   def __init__(self):
     self.players = None
-    self.roundPlayers = None
     self.dealer = None
     self.deck = None
     self.play = True
@@ -304,6 +304,7 @@ class Game():
     self.playerRound = True
     self.roundCount = 1
     self.lastAction = ""
+    self.allBust = True
 
   def setup(self):
     # welcome message and Player creation
@@ -375,15 +376,16 @@ class Game():
       card = self.dealer.deal_card(self.dealer, hand, self.deck, self.dealStyle)
       print_slow_and_wait("Dealer hits and receives {}".format(card), 0.06, 1)
 
-    # check for soft 17
-    # if(len(hand['aces']) > 0):
-
-
   def menu_select(self, num, options):
     for option in options:
       if(option.num == int(num)):
         #print("{} selected from options menu.".format(option.name))
         return option.method
+
+  def check_all_bust(self):
+    for player in self.players:
+      if(player.state['Context'] != 'Bust'):
+        self.allBust = False
 
   def initial_deal(self):
     # deal two cards into Hand 1, all Players start with 1 Hand (0)
@@ -693,6 +695,7 @@ class Game():
       player.bet = 0
       player.hands = (Hand(), )
       player.state = {'Active': True, 'Context': 'Active'}
+      player.bestHand = 0
 
     # create new deck
     self.deck = self.create_deck()
@@ -708,6 +711,9 @@ class Game():
 
     # wipe last action
     self.lastAction = ""
+
+    # reset all bust to True (turns False before Dealer's turn, if at least one Player isn't Bust)
+    self.allBust = True
 
   def print_players(self):
     for player in self.players:

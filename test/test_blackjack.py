@@ -74,7 +74,7 @@ class TestBlackjackDealer(unittest.TestCase):
 		lastCard = self.deck.cards[len(self.deck.cards)-1]
 
 		# deal last card to Player, from end of deck
-		self.dealer.deal_card(self.player.hands[0], self.deck, 'London')
+		self.dealer.deal_card(self.player, self.player.hands[0], self.deck, 'London')
 
 		# get card type from Player, might have been ace
 		card = self.player.hands[0].cards['allCards'][0]

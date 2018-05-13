@@ -75,24 +75,31 @@ while game.play != False:
 		# bail out of game
 		game.playerRound = False
 
-	# dealer hits
-	game.dealer_hit()
+	# check if at least one Player isn't Bust
+	game.check_all_bust()
 
-	# dealer end state
-	game.dealer.end_state()
+	# if at least one Player isn't bust
+	if(game.allBust == False):
+		# dealer hits
+		game.dealer_hit()
 
-	# show dealers hand
-	print("----------------------------------------------------")
-	print("ROUND RESULTS:\n")
-	print("Dealer's final hand -")
-	print("Value: {}".format(game.dealer.hands[0].value))
-	game.dealer.show_hand(game.dealer.hands[0])
-	print("")
+		# dealer end state
+		game.dealer.end_state()
+
+		# show dealers hand
+		print("----------------------------------------------------")
+		print("ROUND RESULTS:\n")
+		print("Dealer's final hand -")
+		print("Value: {}".format(game.dealer.hands[0].value))
+		game.dealer.show_hand(game.dealer.hands[0])
+		print("")
 
 		# clean up code
 		# bug; seems sometimes second Player not reported at the end
 		# FORMATTING - MAKE PRETTY... ALMOST THERE. Need to wipe each print
-		# BLACKJACK STATE persisting between rounds. Instant blackjack not showing player.
+		# best hand value not always wiping
+		# BLACKJACK STATE persisting between rounds. Instant blackjack not showing player details.
+			# card is dealt and changes Hand Active to False when card dealt, before printing message. Could put message inside deal_card?
 		# sometimes second player being skipped in results/winnings
 
 	# test printing
