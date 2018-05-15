@@ -52,9 +52,17 @@ while game.play != False:
 				# print Player details here - name, cash, hand info?
 				while(turn == True):
 					for hand in player.hands:
-						# allow player to keep hitting hand while hand is Active
+						# render initial turn, allow player to keep hitting hand while hand is Active
+						if(hand.value == 21):
+							game.turn_render(player, hand)
+						
 						while hand.state['Active'] == True:
-							options = game.turn_render(player, hand)
+							# render turn
+							game.turn_render(player, hand)
+
+							# print options
+							options = game.generate_options(hand)
+							game.print_options(options, player, hand)
 
 							# get selection, then retrieve option method
 							choice = blackjack.num_range_input_validation(int, 1, len(options), "What would you like to do with Hand {}?".format(hand.num), "selection must be between option range")
@@ -92,10 +100,9 @@ while game.play != False:
 		print("Dealer's final hand -")
 		print("Value: {}".format(game.dealer.hands[0].value))
 		game.dealer.show_hand(game.dealer.hands[0])
-		print("")
 
 		# clean up code
-		# bug; seems sometimes second Player not reported at the end
+		# bug; seems sometimes second Player not reported at the end if Player 1 BLACKJACK!
 		# FORMATTING - MAKE PRETTY... ALMOST THERE. Need to wipe each print
 		# best hand value not always wiping
 		# BLACKJACK STATE persisting between rounds. Instant blackjack not showing player details.

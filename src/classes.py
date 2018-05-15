@@ -111,6 +111,16 @@ class Player():
     self.state['Active'] = active
     self.state['Context'] = context
 
+  def best_hand(self):
+    # iterate through all hands, find best valid hand
+    for hand in self.hands:
+      if(self.state['Context'] == 'Bust'):
+        if(hand.value < self.bestHand or self.bestHand == 0):
+          self.bestHand = hand.value
+      else:
+        if(hand.value > self.bestHand):
+          self.bestHand = hand.value
+
   def __str__(self):
     playerString = ""
     playerString += "PLAYER {}\nName: {}\nCash: {}\nBet: {}\nHands: {}\nActive: {}\nContext: {}\n".format(self.num, self.name, self.cash, self.bet, len(self.hands), self.state['Active'], self.state['Context'])
@@ -367,7 +377,7 @@ class Game():
     # flip face down card
     hand.cards['allCards'][1].flip_card()
 
-    print("")
+    print("\nDEALERS TURN:")
     print_slow_and_wait("Dealer flips second card and shows hand...", 0.06, 2)
 
     self.dealer.show_hand(self.dealer.hands[0])
@@ -459,6 +469,10 @@ class Game():
   def process_results(self):
     results = {'Winners':[], 'Losers':[], 'Ties':[]}
 
+    # pull best hand value for each Player
+    for player in self.players:
+      player.best_hand()
+
     # if dealer bust, pay out everyone with valid hands
     if(self.dealer.state['Context'] == 'Bust'):
       for player in self.players:
@@ -476,27 +490,17 @@ class Game():
         if(player.state['Context'] == 'Blackjack'):
           if(dealerHandValue < 21):
             results['Winners'].append(player)
-            break
           else:
             results['Ties'].append(player)
-            break
 
         # if Player not Bust, Surrendered or Blackjack, compare to dealer
         elif(player.state['Context'] == 'Open'):
-          bestHand = 0
-          for hand in player.hands: # iterate through all hands, find best valid hand
-            if(hand.value > bestHand and hand.value <= 21):
-              bestHand = hand.value
-
-          # update Player best hand
-          player.bestHand = bestHand
-
           # compare best hand to dealer hand and assign player to appropriate list
-          if(bestHand > dealerHandValue):
+          if(player.bestHand > dealerHandValue):
             results['Winners'].append(player)
-          elif(bestHand == dealerHandValue):
+          elif(player.bestHand == dealerHandValue):
             results['Ties'].append(player)
-          elif(bestHand < dealerHandValue):
+          elif(player.bestHand < dealerHandValue):
             results['Losers'].append(player)
        
         # straight up losers
@@ -519,7 +523,7 @@ class Game():
 
       # print
       print("\nCongratulations Player {} ({}), you beat the dealer!".format(player.num, player.name))
-      print("Best hand value: {}\nWinnings: ${}".format(player.bestHand, winnings))
+      print("Hand value: {}\nWinnings: ${}".format(player.bestHand, winnings))
       print("You now have ${}!".format(player.cash))
 
     for player in results['Ties']:
@@ -542,7 +546,7 @@ class Game():
         losses = player.bet
 
       print("\nSorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name))
-      print("Reason: {}\nYou lost ${}!".format(message, player.bet))
+      print("Reason for loss: {}\nHand value: {}\nYou lost ${}!".format(message, player.bestHand, player.bet))
       print("You now have ${}!".format(player.cash))
 
     # print Dealer final state for test purposes
@@ -652,10 +656,15 @@ class Game():
     player.set_state(False, 'Surrendered')
     hand.set_state(False, 'Surrendered')
 
-  def print_options(self, options):
+  def print_options(self, options, player, hand):
+    playerName = player.name
+    handNum = hand.num
+
     print("OPTIONS:\n")
     for option in options:
       print(option)
+
+    print("\n{}, what would you like to do with Hand {}?".format(playerName, handNum))
 
   def end(self):
     print("\nWould you like to play another round, Y/N?")
@@ -799,14 +808,6 @@ class Game():
       else:
         spaces = self.calc_spaces(stateStrings[0][x])
         print(stateStrings[0][x]+spaces+stateStrings[1][x])
-
-    # OPTIONS
-    options = self.generate_options(playerHand)
-    self.print_options(options)
-
-    print("\n{}, what would you like to do with Hand {}?".format(playerName, handNum))
-
-    return options
 
   def calc_spaces(self, stringInput):
     string = ""
