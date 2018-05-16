@@ -4,6 +4,7 @@
 # A Deck has Cards or is Empty
 import sys
 import random
+import os
 sys.path.append('..')
 
 import src.classes as blackjack
@@ -52,7 +53,8 @@ while game.play != False:
 				# print Player details here - name, cash, hand info?
 				while(turn == True):
 					for hand in player.hands:
-						# render initial turn, allow player to keep hitting hand while hand is Active
+
+						# render initial turn if Blackjack, allow player to keep hitting hand while hand is Active
 						if(hand.value == 21):
 							game.turn_render(player, hand)
 						
@@ -78,7 +80,7 @@ while game.play != False:
 								turn = True
 
 					# after Player has acted on all Hands, check if still in the game
-					player.end_state()
+					player.end_state(game)
 
 		# bail out of game
 		game.playerRound = False
@@ -86,28 +88,33 @@ while game.play != False:
 	# check if at least one Player isn't Bust
 	game.check_all_bust()
 
+	# wipe console
+	zeroHold = os.system("clear")
+
 	# if at least one Player isn't bust
 	if(game.allBust == False):
 		# dealer hits
 		game.dealer_hit()
 
 		# dealer end state
-		game.dealer.end_state()
+		game.dealer.end_state(game)
+
+		# wipe console
+		zeroHold = os.system("clear")
 
 		# show dealers hand
-		print("----------------------------------------------------")
 		print("ROUND RESULTS:\n")
 		print("Dealer's final hand -")
 		print("Value: {}".format(game.dealer.hands[0].value))
 		game.dealer.show_hand(game.dealer.hands[0])
 
 		# clean up code
-		# bug; seems sometimes second Player not reported at the end if Player 1 BLACKJACK!
-		# FORMATTING - MAKE PRETTY... ALMOST THERE. Need to wipe each print
-		# best hand value not always wiping
-		# BLACKJACK STATE persisting between rounds. Instant blackjack not showing player details.
-			# card is dealt and changes Hand Active to False when card dealt, before printing message. Could put message inside deal_card?
-		# sometimes second player being skipped in results/winnings
+		# FORMATTING; 
+			# Have Round number, and Title, always be at the top (move out of render_turn),
+			# Have dealer cards print one at a time,
+			# Weird extra newline after first turn in formatting
+			# Have each Player's result print one at a time
+			# Bug; if Player hits instant Blackjack, print wipe not working
 
 	# test printing
 	#test_output(game)

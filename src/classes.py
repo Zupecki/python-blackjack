@@ -6,6 +6,7 @@ from random import shuffle
 from inspect import getargspec as argnames
 from time import time, sleep
 import sys
+import os
 
 # misc global functions - probably best in own file
 
@@ -23,7 +24,6 @@ def print_slow_and_wait(inputString, printDelay, wait):
     printString += char
     sys.stdout.write(printString+"\r")
     sys.stdout.flush()
-    #print(printString)
     sleep(printDelay)
   print("")
 
@@ -72,7 +72,7 @@ class Player():
         print("Face Down - ?")
 
   # Player turns are over, check state and set validity for potential payouts
-  def end_state(self):
+  def end_state(self, game):
     context = ""
     busts = 0
 
@@ -83,7 +83,8 @@ class Player():
       for hand in self.hands:
         if(hand.state['Context'] == 'Blackjack'):
           context = "Blackjack"
-          print_slow_and_wait("Congratulations Player {} ({}) - BLACKJACK!".format(self.num, self.name), 0.06, 2)
+          game.lastAction = "Player {} ({}) hit BLACKJACK!".format(self.num, self.name)
+          print_slow_and_wait("Congratulations {} - BLACKJACK!".format(self.name), 0.06, 2)
           break
         elif(hand.state['Context'] != 'Bust'):
           context = "Open"
@@ -93,8 +94,9 @@ class Player():
       
       # if Player's hands are Bust, set to Bust
       if(len(self.hands) == busts):
-        print_slow_and_wait("BUSTED!", 0.06, 2)
         context = "Bust"
+        game.lastAction = "Player {} ({}) is BUST!".format(self.num, self.name)
+        print_slow_and_wait("BUSTED!", 0.06, 2)
 
       self.set_state(False, context)
 
@@ -318,7 +320,7 @@ class Game():
 
   def setup(self):
     # welcome message and Player creation
-    print_slow_and_wait("Welcome to Python Blackjack in the command line!", 0.06, 0.0)
+    print_slow_and_wait("Welcome to Python Blackjack in the command line!", 0.06, 1)
 
     # Players
     self.players = self.create_players()
@@ -699,6 +701,9 @@ class Game():
       return False
   
   def reset(self):
+    # wipe console
+    zeroHold = os.system("clear")
+
     # wipe Player bets to 0, empty Hands, reset states
     for player in self.players:
       player.bet = 0
@@ -739,8 +744,10 @@ class Game():
       player.show_hand()
     self.dealer.show_hand()
 
-  # 
   def turn_render(self, player, playerHand):
+    # wipe console
+    zeroHold = os.system("clear")
+    
     dealerHand = self.dealer.hands[0]
     playerNum = player.get_num()
     playerName = player.get_name()
@@ -748,14 +755,19 @@ class Game():
     handNum = playerHand.get_num()
     stateStrings = [[],[]] # column 1, column 2
 
-    stateStrings[0].append("\nPython Blackjack - Round {}".format(self.roundCount))
+    stateStrings[0].append("Python Blackjack - Round {}".format(self.roundCount))
     stateStrings[1].append(None)
 
     if(len(self.lastAction) > 0):
-      stateStrings[0].append("\nLAST ACTION:")
+      stateStrings[0].append("LAST ACTION:")
       stateStrings[1].append(None)
 
       stateStrings[0].append("{}".format(self.lastAction))
+      stateStrings[1].append(None)
+    else: # same spacing as when LAST ACTION added
+      stateStrings[0].append("")
+      stateStrings[1].append(None)
+      stateStrings[0].append("NEW ROUND")
       stateStrings[1].append(None)
 
     stateStrings[0].append("----------------------------------------------------")
@@ -777,7 +789,7 @@ class Game():
     stateStrings[1].append(None)
 
     stateStrings[0].append("Dealer's Hand -")
-    stateStrings[1].append("Player's Hand {} of {} -".format(handNum, len(player.hands)))
+    stateStrings[1].append("Your Hand {} of {} -".format(handNum, len(player.hands)))
 
     stateStrings[0].append("Value: {}".format(dealerHand.get_value()))
     stateStrings[1].append("Value: {}".format(handValue))
