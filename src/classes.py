@@ -51,6 +51,10 @@ def get_arg_names(function):
   # pull arg names as index 0, drop 'self' with slice, cast to tuple
   return tuple(argnames(function)[0][1:])
 
+# wipe console
+def wipe_console():
+  print("\033[H\033[J")
+
 class Player():
 
   def __init__(self, name, num):
@@ -379,10 +383,16 @@ class Game():
     # flip face down card
     hand.cards['allCards'][1].flip_card()
 
-    print("\nDEALERS TURN:")
+    # wipe console and print title
+    wipe_console()
+    self.print_title()
+
+    print("DEALERS TURN:\n")
     print_slow_and_wait("Dealer flips second card and shows hand...", 0.06, 2)
 
-    self.dealer.show_hand(self.dealer.hands[0])
+    # show cards
+    for card in hand.cards['allCards']:
+      print_slow_and_wait(card.get_string(), 0, 1)
 
     while(hand.value < 17 and hand.soft == True):
       card = self.dealer.deal_card(self.dealer, hand, self.deck, self.dealStyle)
@@ -516,23 +526,29 @@ class Game():
     for player in results['Winners']:
       winnings = 0
       if(player.state['Context'] == 'Open'):
-        winnings = player.bet
+        winnings = player.bet #regular win
       elif(player.state['Context'] == 'Blackjack'):
-        winnings = player.bet*1.5
+        winnings = player.bet*1.5 #blackjack win
 
       # update Player cash
       player.cash += (player.bet + winnings)
 
       # print
-      print("\nCongratulations Player {} ({}), you beat the dealer!".format(player.num, player.name))
-      print("Hand value: {}\nWinnings: ${}".format(player.bestHand, winnings))
-      print("You now have ${}!".format(player.cash))
+      print("")
+      print_slow_and_wait("Congratulations Player {} ({}), you beat the dealer!".format(player.num, player.name), 0, 0)
+      print_slow_and_wait("Hand value: {}".format(player.bestHand), 0, 0)
+      print_slow_and_wait("Winnings: ${}".format(winnings), 0, 0)
+      print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
 
     for player in results['Ties']:
       player.cash += player.bet
-      print("\nPlayer {} ({}), you tied with the dealer!".format(player.num, player.name))
-      print("Tied hand value: {}\nYou receive back your bet of ${}".format(player.bestHand, player.bet))
-      print("You now have ${}!".format(player.cash))
+
+      # print
+      print("")
+      print_slow_and_wait("Player {} ({}), you tied with the dealer!".format(player.num, player.name), 0, 0)
+      print_slow_and_wait("Tied hand value: {}".format(player.bestHand), 0, 0)
+      print_slow_and_wait("You receive back your bet of ${}".format(player.bet), 0, 0)
+      print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
 
     for player in results['Losers']:
       message = ""
@@ -547,12 +563,13 @@ class Game():
         message = "Lower Hand Value"
         losses = player.bet
 
-      print("\nSorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name))
-      print("Reason for loss: {}\nHand value: {}\nYou lost ${}!".format(message, player.bestHand, player.bet))
-      print("You now have ${}!".format(player.cash))
-
-    # print Dealer final state for test purposes
-    #print("Dealer states:\nDealer Active - {}\nDealer Context - {}\nHand Active - {}\nHand Context - {}\n".format(self.dealer.state['Active'], self.dealer.state['Context'], self.dealer.hands[0].state['Active'], self.dealer.hands[0].state['Context']))
+      # print
+      print("")
+      print_slow_and_wait("Sorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name), 0, 0)
+      print_slow_and_wait("Reason for loss: {}".format(message), 0, 0)
+      print_slow_and_wait("Hand value: {}".format(player.bestHand), 0, 0)
+      print_slow_and_wait("You lost ${}!".format(player.bet), 0, 0)
+      print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
 
   def create_deck(self):
     deck = Deck()
@@ -744,10 +761,28 @@ class Game():
       player.show_hand()
     self.dealer.show_hand()
 
-  def turn_render(self, player, playerHand):
-    # wipe console
-    zeroHold = os.system("clear")
-    
+  def print_title(self):
+    # print Title
+    print("Python Blackjack - Round {}\n".format(self.roundCount))
+    print("----------------------------------------------------")
+
+  def render_turn(self, player, playerHand):
+    # wipe console and print title
+    wipe_console()
+    self.print_title()
+
+    # fetch round format
+    render = self.round_format(player, playerHand)
+
+    # PRINT IT
+    for x in range(0, len(render[0])):
+      if(render[1][x] == None):
+        print(render[0][x])
+      else:
+        spaces = self.calc_spaces(render[0][x])
+        print(render[0][x]+spaces+render[1][x])
+
+  def round_format(self, player, playerHand):
     dealerHand = self.dealer.hands[0]
     playerNum = player.get_num()
     playerName = player.get_name()
@@ -755,20 +790,15 @@ class Game():
     handNum = playerHand.get_num()
     stateStrings = [[],[]] # column 1, column 2
 
-    stateStrings[0].append("Python Blackjack - Round {}".format(self.roundCount))
+  
+    stateStrings[0].append("LAST ACTION:")
     stateStrings[1].append(None)
 
     if(len(self.lastAction) > 0):
-      stateStrings[0].append("LAST ACTION:")
-      stateStrings[1].append(None)
-
       stateStrings[0].append("{}".format(self.lastAction))
-      stateStrings[1].append(None)
-    else: # same spacing as when LAST ACTION added
-      stateStrings[0].append("")
-      stateStrings[1].append(None)
-      stateStrings[0].append("NEW ROUND")
-      stateStrings[1].append(None)
+    else:
+      stateStrings[0].append("New Round")
+    stateStrings[1].append(None)
 
     stateStrings[0].append("----------------------------------------------------")
     stateStrings[1].append(None)
@@ -813,13 +843,7 @@ class Game():
     stateStrings[0].append("----------------------------------------------------")
     stateStrings[1].append(None)
 
-    # PRINT IT
-    for x in range(0, len(stateStrings[0])):
-      if(stateStrings[1][x] == None):
-        print(stateStrings[0][x])
-      else:
-        spaces = self.calc_spaces(stateStrings[0][x])
-        print(stateStrings[0][x]+spaces+stateStrings[1][x])
+    return stateStrings
 
   def calc_spaces(self, stringInput):
     string = ""

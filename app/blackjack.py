@@ -56,11 +56,11 @@ while game.play != False:
 
 						# render initial turn if Blackjack, allow player to keep hitting hand while hand is Active
 						if(hand.value == 21):
-							game.turn_render(player, hand)
+							game.render_turn(player, hand)
 						
 						while hand.state['Active'] == True:
 							# render turn
-							game.turn_render(player, hand)
+							game.render_turn(player, hand)
 
 							# print options
 							options = game.generate_options(hand)
@@ -88,9 +88,6 @@ while game.play != False:
 	# check if at least one Player isn't Bust
 	game.check_all_bust()
 
-	# wipe console
-	zeroHold = os.system("clear")
-
 	# if at least one Player isn't bust
 	if(game.allBust == False):
 		# dealer hits
@@ -99,21 +96,20 @@ while game.play != False:
 		# dealer end state
 		game.dealer.end_state(game)
 
-		# wipe console
-		zeroHold = os.system("clear")
+	# wipe console and print title
+	blackjack.wipe_console()
+	game.print_title()
 
-		# show dealers hand
-		print("ROUND RESULTS:\n")
-		print("Dealer's final hand -")
-		print("Value: {}".format(game.dealer.hands[0].value))
-		game.dealer.show_hand(game.dealer.hands[0])
+	# show dealers hand
+	print("ROUND RESULTS:\n")
+	print("Dealer's final hand -")
+	print("Value: {}".format(game.dealer.hands[0].value))
+	game.dealer.show_hand(game.dealer.hands[0])
 
 		# clean up code
 		# FORMATTING; 
-			# Have Round number, and Title, always be at the top (move out of render_turn),
 			# Have dealer cards print one at a time,
-			# Weird extra newline after first turn in formatting
-			# Have each Player's result print one at a time
+			# Have each Player's result print one at a time,
 			# Bug; if Player hits instant Blackjack, print wipe not working
 
 	# test printing
