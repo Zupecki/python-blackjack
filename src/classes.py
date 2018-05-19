@@ -522,7 +522,15 @@ class Game():
     return results
 
   def print_results(self, results):
+    # wipe console and print title
+    wipe_console()
+    self.print_title()
 
+    print_slow_and_wait("ROUND RESULTS:", 0, 0)
+    print_slow_and_wait("Dealer's final hand -", 0, 0)
+    print_slow_and_wait("Value: {}".format(self.dealer.hands[0].value), 0, 1)
+
+    # print Winners
     for player in results['Winners']:
       winnings = 0
       if(player.state['Context'] == 'Open'):
@@ -540,6 +548,7 @@ class Game():
       print_slow_and_wait("Winnings: ${}".format(winnings), 0, 0)
       print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
 
+    # print Ties
     for player in results['Ties']:
       player.cash += player.bet
 
@@ -550,6 +559,7 @@ class Game():
       print_slow_and_wait("You receive back your bet of ${}".format(player.bet), 0, 0)
       print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
 
+    # print Losers
     for player in results['Losers']:
       message = ""
       losses = 0

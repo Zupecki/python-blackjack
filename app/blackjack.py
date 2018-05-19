@@ -96,21 +96,10 @@ while game.play != False:
 		# dealer end state
 		game.dealer.end_state(game)
 
-	# wipe console and print title
-	blackjack.wipe_console()
-	game.print_title()
-
-	# show dealers hand
-	print("ROUND RESULTS:\n")
-	print("Dealer's final hand -")
-	print("Value: {}".format(game.dealer.hands[0].value))
-	game.dealer.show_hand(game.dealer.hands[0])
-
-		# clean up code
-		# FORMATTING; 
-			# Have dealer cards print one at a time,
-			# Have each Player's result print one at a time,
-			# Bug; if Player hits instant Blackjack, print wipe not working
+	# TODO
+	# BUG; if second Hand hits Blackjack, not being reported in the moment for some reason
+	# clean up code
+	# create print_with_delay global function to avoid exploiting print_slow function
 
 	# test printing
 	#test_output(game)
