@@ -53,11 +53,6 @@ while game.play != False:
 				# print Player details here - name, cash, hand info?
 				while(turn == True):
 					for hand in player.hands:
-
-						# render initial turn if Blackjack, allow player to keep hitting hand while hand is Active
-						if(hand.value == 21):
-							game.render_turn(player, hand)
-						
 						while hand.state['Active'] == True:
 							# render turn
 							game.render_turn(player, hand)
@@ -65,6 +60,10 @@ while game.play != False:
 							# print options
 							options = game.generate_options(hand)
 							game.print_options(options, player, hand)
+
+							# check hand
+							if(hand.check_hand(player, game) == 'Break'):
+								break
 
 							# get selection, then retrieve option method
 							choice = blackjack.num_range_input_validation(int, 1, len(options), "What would you like to do with Hand {}?".format(hand.num), "selection must be between option range")

@@ -87,8 +87,6 @@ class Player():
       for hand in self.hands:
         if(hand.state['Context'] == 'Blackjack'):
           context = "Blackjack"
-          game.lastAction = "Player {} ({}) hit BLACKJACK!".format(self.num, self.name)
-          print_slow_and_wait("Congratulations {} - BLACKJACK!".format(self.name), 0.06, 2)
           break
         elif(hand.state['Context'] != 'Bust'):
           context = "Open"
@@ -99,8 +97,6 @@ class Player():
       # if Player's hands are Bust, set to Bust
       if(len(self.hands) == busts):
         context = "Bust"
-        game.lastAction = "Player {} ({}) is BUST!".format(self.num, self.name)
-        print_slow_and_wait("BUSTED!", 0.06, 2)
 
       self.set_state(False, context)
 
@@ -119,13 +115,17 @@ class Player():
 
   def best_hand(self):
     # iterate through all hands, find best valid hand
-    for hand in self.hands:
-      if(self.state['Context'] == 'Bust'):
-        if(hand.value < self.bestHand or self.bestHand == 0):
-          self.bestHand = hand.value
-      else:
-        if(hand.value > self.bestHand):
-          self.bestHand = hand.value
+    if(self.state['Context'] == 'Blackjack'):
+      self.bestHand = 21
+      return None
+    else:
+      for hand in self.hands:
+        if(self.state['Context'] == 'Bust'):
+          if(hand.value < self.bestHand or self.bestHand == 0):
+            self.bestHand = hand.value
+        else:
+          if(hand.value > self.bestHand and hand.value <= 21):
+            self.bestHand = hand.value
 
   def __str__(self):
     playerString = ""
@@ -162,7 +162,7 @@ class Dealer(Player):
 
     # Update hand stats, assign bust or not
     hand.recalculate_value()
-    hand.check_hand(player)
+    #hand.check_hand(player)
 
     return card
 
@@ -201,12 +201,20 @@ class Hand():
         break
     
   # Check if hand is Blackjack or Bust, otherwise leave untouched
-  def check_hand(self, player):
+  def check_hand(self, player, game):
     if(self.value == 21):
-      #print_slow_and_wait("Congratulations Player {} ({}) - you hit Blackjack!".format(player.num, player.name), 0.06, 2)
+      game.lastAction = "Player {} ({}) hit BLACKJACK!".format(player.num, player.name)
+      print("")
+      print_slow_and_wait("Congratulations {} - BLACKJACK!".format(player.name), 0.06, 2)
       self.set_state(False, 'Blackjack')
+      return 'Break'
+
     elif self.value > 21:
+      game.lastAction = "Player {} ({}) is BUST!".format(player.num, player.name)
+      print("")
+      print_slow_and_wait("Oops {} - Hand {} BUSTED!".format(player.name, self.num), 0.06, 2)
       self.set_state(False, 'Bust')
+      return 'Break'
 
   def set_state(self, active, context):
     self.state['Active'] = active
@@ -390,13 +398,18 @@ class Game():
     print("DEALERS TURN:\n")
     print_slow_and_wait("Dealer flips second card and shows hand...", 0.06, 2)
 
+    # check for initial Blackjack
+    hand.check_hand(self.dealer, self)
+
     # show cards
     for card in hand.cards['allCards']:
       print_slow_and_wait(card.get_string(), 0, 1)
 
+    # keeping hitting and checking hand
     while(hand.value < 17 and hand.soft == True):
       card = self.dealer.deal_card(self.dealer, hand, self.deck, self.dealStyle)
       print_slow_and_wait("Dealer hits and receives {}".format(card), 0.06, 1)
+      hand.check_hand(self.dealer, self)
 
   def menu_select(self, num, options):
     for option in options:
