@@ -398,12 +398,12 @@ class Game():
     print("DEALERS TURN:\n")
     print_slow_and_wait("Dealer flips second card and shows hand...", 0.06, 2)
 
-    # check for initial Blackjack
-    hand.check_hand(self.dealer, self)
-
     # show cards
     for card in hand.cards['allCards']:
       print_slow_and_wait(card.get_string(), 0, 1)
+
+    # check for initial Blackjack
+    hand.check_hand(self.dealer, self)
 
     # keeping hitting and checking hand
     while(hand.value < 17 and hand.soft == True):
