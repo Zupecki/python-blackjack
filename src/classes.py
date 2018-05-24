@@ -29,6 +29,12 @@ def print_slow_and_wait(inputString, printDelay, wait):
 
   sleep(wait)
 
+def print_and_wait(inputString, wait):
+  sys.stdout.write(inputString)
+  sys.stdout.flush()
+  print("")
+  sleep(wait)
+
 def num_range_input_validation(inputType, minimum, maximum, intentMessage, rangeMessage):
 
   while True:
@@ -400,7 +406,7 @@ class Game():
 
     # show cards
     for card in hand.cards['allCards']:
-      print_slow_and_wait(card.get_string(), 0, 1)
+      print_and_wait(card.get_string(), 1)
 
     # check for initial Blackjack
     hand.check_hand(self.dealer, self)
@@ -414,7 +420,6 @@ class Game():
   def menu_select(self, num, options):
     for option in options:
       if(option.num == int(num)):
-        #print("{} selected from options menu.".format(option.name))
         return option.method
 
   def check_all_bust(self):
@@ -539,9 +544,10 @@ class Game():
     wipe_console()
     self.print_title()
 
-    print_slow_and_wait("ROUND RESULTS:", 0, 0)
-    print_slow_and_wait("Dealer's final hand -", 0, 0)
-    print_slow_and_wait("Value: {}".format(self.dealer.hands[0].value), 0, 1)
+    print_and_wait("ROUND RESULTS:", 0)
+    print("")
+    print_and_wait("Dealer's final hand -", 0)
+    print_and_wait("Value: {}".format(self.dealer.hands[0].value), 1)
 
     # print Winners
     for player in results['Winners']:
@@ -556,10 +562,10 @@ class Game():
 
       # print
       print("")
-      print_slow_and_wait("Congratulations Player {} ({}), you beat the dealer!".format(player.num, player.name), 0, 0)
-      print_slow_and_wait("Hand value: {}".format(player.bestHand), 0, 0)
-      print_slow_and_wait("Winnings: ${}".format(winnings), 0, 0)
-      print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
+      print_and_wait("Congratulations Player {} ({}), you beat the dealer!".format(player.num, player.name), 0)
+      print_and_wait("Hand value: {}".format(player.bestHand), 0)
+      print_and_wait("Winnings: ${}".format(winnings), 0)
+      print_and_wait("You now have ${}!".format(player.cash), 1)
 
     # print Ties
     for player in results['Ties']:
@@ -567,10 +573,10 @@ class Game():
 
       # print
       print("")
-      print_slow_and_wait("Player {} ({}), you tied with the dealer!".format(player.num, player.name), 0, 0)
-      print_slow_and_wait("Tied hand value: {}".format(player.bestHand), 0, 0)
-      print_slow_and_wait("You receive back your bet of ${}".format(player.bet), 0, 0)
-      print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
+      print_and_wait("Player {} ({}), you tied with the dealer!".format(player.num, player.name), 0)
+      print_and_wait("Tied hand value: {}".format(player.bestHand), 0)
+      print_and_wait("You receive back your bet of ${}".format(player.bet), 0)
+      print_and_wait("You now have ${}!".format(player.cash), 1)
 
     # print Losers
     for player in results['Losers']:
@@ -588,11 +594,11 @@ class Game():
 
       # print
       print("")
-      print_slow_and_wait("Sorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name), 0, 0)
-      print_slow_and_wait("Reason for loss: {}".format(message), 0, 0)
-      print_slow_and_wait("Hand value: {}".format(player.bestHand), 0, 0)
-      print_slow_and_wait("You lost ${}!".format(player.bet), 0, 0)
-      print_slow_and_wait("You now have ${}!".format(player.cash), 0, 1)
+      print_and_wait("Sorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name), 0)
+      print_and_wait("Reason for loss: {}".format(message), 0)
+      print_and_wait("Hand value: {}".format(player.bestHand), 0)
+      print_and_wait("You lost ${}!".format(player.bet), 0)
+      print_and_wait("You now have ${}!".format(player.cash), 1)
 
   def create_deck(self):
     deck = Deck()

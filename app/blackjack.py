@@ -96,9 +96,8 @@ while game.play != False:
 		game.dealer.end_state(game)
 
 	# TODO
-	# BUG; if second Hand hits Blackjack, not being reported in the moment for some reason
 	# clean up code
-	# create print_with_delay global function to avoid exploiting print_slow function
+		# create print_with_delay global function to avoid exploiting print_slow function
 
 	# test printing
 	#test_output(game)
