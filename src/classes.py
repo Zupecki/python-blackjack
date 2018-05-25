@@ -1,14 +1,13 @@
-# Initial primary code for command line Blackjack - might split into separate files if necessary
-# A Game has Players, a Dealer and a Deck of Cards
-# A Player has Cards and set of actions
-# A Deck has Cards or is Empty
+# Code for blackjack game Classes, and some global functions
+# by Michael Zupecki, 2018
+
 from random import shuffle
 from inspect import getargspec as argnames
 from time import time, sleep
 import sys
 import os
 
-# misc global functions - probably best in own file
+# GLOBAL FUNCS
 
 # convert int num to word-string version
 def num_to_word(num):
@@ -60,6 +59,16 @@ def get_arg_names(function):
 # wipe console
 def wipe_console():
   print("\033[H\033[J")
+
+# calculate amount of spaces to ensure render_turn prints same every time
+def calc_spaces(stringInput):
+    charGap = 29
+    string = ""
+    for x in range(len(stringInput), charGap):
+      string += " "
+    return string
+
+# CLASSES
 
 class Player():
 
@@ -808,7 +817,7 @@ class Game():
       if(render[1][x] == None):
         print(render[0][x])
       else:
-        spaces = self.calc_spaces(render[0][x])
+        spaces = calc_spaces(render[0][x])
         print(render[0][x]+spaces+render[1][x])
 
   def round_format(self, player, playerHand):
@@ -873,9 +882,3 @@ class Game():
     stateStrings[1].append(None)
 
     return stateStrings
-
-  def calc_spaces(self, stringInput):
-    string = ""
-    for x in range(len(stringInput), 29):
-      string += " "
-    return string

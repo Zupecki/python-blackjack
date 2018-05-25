@@ -1,7 +1,6 @@
-# Initial primary code for command line Blackjack - might split into separate files if necessary
-# A Game has Players, a Dealer and a Deck of Cards
-# A Player has Cards and set of actions
-# A Deck has Cards or is Empty
+# Code for command line Blackjack; game loop
+# by Michael Zupecki, 2018
+
 import sys
 import random
 import os
@@ -27,9 +26,7 @@ def test_output(game):
 
 	game.print_bet_tracker()
 
-
 # GAME LOGIC
-
 # Build game object, then set it up with Players, Dealer and Deck
 game = blackjack.Game()
 game.setup()
@@ -94,10 +91,6 @@ while game.play != False:
 
 		# dealer end state
 		game.dealer.end_state(game)
-
-	# TODO
-	# clean up code
-		# create print_with_delay global function to avoid exploiting print_slow function
 
 	# test printing
 	#test_output(game)
