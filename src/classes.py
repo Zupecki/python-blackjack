@@ -41,7 +41,7 @@ def num_range_input_validation(inputType, minimum, maximum, intentMessage, range
       try:
         num = inputType(input())
       except ValueError:
-        print("Must be a number, try again.\n{}".format(intentMessage))
+        print("Must be a whole number, try again.\n{}".format(intentMessage))
         continue
       else:
         if(num >= minimum and num <= maximum):
@@ -555,7 +555,7 @@ class Game():
       if(player.state['Context'] == 'Open'):
         winnings = player.bet #regular win
       elif(player.state['Context'] == 'Blackjack'):
-        winnings = player.bet*1.5 #blackjack win
+        winnings = player.bet*1.5 #blackjack win, cast back to int
 
       # update Player cash
       player.cash += (player.bet + winnings)
@@ -564,8 +564,8 @@ class Game():
       print("")
       print_and_wait("Congratulations Player {} ({}), you beat the dealer!".format(player.num, player.name), 0)
       print_and_wait("Hand value: {}".format(player.bestHand), 0)
-      print_and_wait("Winnings: ${}".format(winnings), 0)
-      print_and_wait("You now have ${}!".format(player.cash), 1)
+      print_and_wait("Winnings: ${}".format(int(winnings)), 0)
+      print_and_wait("You now have ${}!".format(int(player.cash)), 1)
 
     # print Ties
     for player in results['Ties']:
@@ -575,8 +575,8 @@ class Game():
       print("")
       print_and_wait("Player {} ({}), you tied with the dealer!".format(player.num, player.name), 0)
       print_and_wait("Tied hand value: {}".format(player.bestHand), 0)
-      print_and_wait("You receive back your bet of ${}".format(player.bet), 0)
-      print_and_wait("You now have ${}!".format(player.cash), 1)
+      print_and_wait("You receive back your bet of ${}".format(int(player.bet)), 0)
+      print_and_wait("You now have ${}!".format(int(player.cash)), 1)
 
     # print Losers
     for player in results['Losers']:
@@ -587,7 +587,7 @@ class Game():
         losses = player.bet
       elif(player.state['Context'] == 'Surrendered'):
         message = "Surrendered"
-        losses = player.bet/2
+        losses = int(player.bet/2)
       elif(player.state['Context'] == 'Open'):
         message = "Lower Hand Value"
         losses = player.bet
@@ -597,8 +597,8 @@ class Game():
       print_and_wait("Sorry Player {} ({}), you were beaten by the dealer!".format(player.num, player.name), 0)
       print_and_wait("Reason for loss: {}".format(message), 0)
       print_and_wait("Hand value: {}".format(player.bestHand), 0)
-      print_and_wait("You lost ${}!".format(player.bet), 0)
-      print_and_wait("You now have ${}!".format(player.cash), 1)
+      print_and_wait("Losses: ${}".format(int(player.bet)), 0)
+      print_and_wait("You now have ${}!".format(int(player.cash)), 1)
 
   def create_deck(self):
     deck = Deck()
