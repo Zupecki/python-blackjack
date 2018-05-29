@@ -756,8 +756,7 @@ class Game():
       return False
   
   def reset(self):
-    # wipe console
-    zeroHold = os.system("clear")
+    wipe_console()
 
     # wipe Player bets to 0, empty Hands, reset states
     for player in self.players:
@@ -827,7 +826,6 @@ class Game():
     handValue = playerHand.get_value()
     handNum = playerHand.get_num()
     stateStrings = [[],[]] # column 1, column 2
-
   
     stateStrings[0].append("LAST ACTION:")
     stateStrings[1].append(None)
